@@ -34,6 +34,8 @@
 {
 	var MAX_VALUE = 210000000;
 
+	var g_showType = "full";
+	var g_needChangeCanvas = true;
 	var loader;
 	var loadingLayer;
 	var res = {};
@@ -73,16 +75,20 @@
 	var GENG = [
 	{num:7,text:"真理阿虚送你一次抽奖机会"}
 	,{num:9,text:"笨蛋⑨送你一次抽奖机会"}
+	,{num:59,text:"无敌坦克送你一次抽奖机会"}
 	,{num:74,text:"切嗣papa送你一次抽奖机会"}
 	,{num:233,text:"吐槽群众送你一次抽奖机会"}
+	,{num:384,text:"完美执事送你一次抽奖机会"}
 	,{num:404,text:"故障网站送你一次抽奖机会"}
 	,{num:450,text:"霸道刀哥送你一次抽奖机会"}
 	,{num:495,text:"抱头二妹送你一次抽奖机会"}
+	,{num:520,text:"握手爱抖送你一次抽奖机会"}
 	,{num:614,text:"傲娇萝莉送你一次抽奖机会"}
 	,{num:666,text:"觉厉群众送你一次抽奖机会"}
 	,{num:801,text:"腐坏群众送你一次抽奖机会"}
 	,{num:894,text:"迷路蜗牛送你一次抽奖机会"}
 	,{num:993,text:"悲伤面罩男送你一次抽奖机会"}
+	,{num:998,text:"广告促销送你一次抽奖机会"}
 	,{num:1024,text:"福利社区送你一次抽奖机会"}
 	,{num:1096,text:"凉宫学姐送你一次抽奖机会"}
 	,{num:3000,text:"金发大小姐送你一次抽奖机会"}
@@ -270,31 +276,31 @@
 
 
 	var game={};
-	game.buff="waite";
-	game.bCreate = false;
-	game.create = function(){
-		game.par=gameLayer;
-		game.lineAdd=0;
-		game.mainCanvas=new LSprite();
-		game.par.addChild(game.mainCanvas);
+	buff="waite";
+	bCreate = false;
+	create = function(){
+		par=gameLayer;
+		lineAdd=0;
+		mainCanvas=new LSprite();
+		par.addChild(mainCanvas);
 
 		
-		game.bkCanvas = new LSprite();
-		game.mainCanvas.addChild(game.bkCanvas);
-		game.mogekoData =  new LBitmapData(res["bk_img_mogeko"]);
-		game.bkBmpData = new LBitmapData(res["bk_img_ray"]);
-		var bmp = new LBitmap(game.bkBmpData);
-		game.bkCanvas.addChild(bmp);
+		bkCanvas = new LSprite();
+		mainCanvas.addChild(bkCanvas);
+		mogekoData =  new LBitmapData(res["bk_img_mogeko"]);
+		bkBmpData = new LBitmapData(res["bk_img_ray"]);
+		var bmp = new LBitmap(bkBmpData);
+		bkCanvas.addChild(bmp);
 		
-		game.spBkCanvas = new LSprite();
-		game.spBkCanvas.x = UI_SP_X;
-		game.spBkCanvas.y = UI_SP_Y;d
-		game.mainCanvas.addChild(game.spBkCanvas);
+		spBkCanvas = new LSprite();
+		spBkCanvas.x = UI_SP_X;
+		spBkCanvas.y = UI_SP_Y;d
+		mainCanvas.addChild(spBkCanvas);
 		var x=15,y=20;
-		var g = game.spBkCanvas.graphics;
+		var g = spBkCanvas.graphics;
 		g.drawRoundRect(2,"#000000",[0,0,180,300,10],true,"#F6A19A");
 		while(y < 280 ){
-			game.drawHeart(x,y,14,"#F6CEB4",game.spBkCanvas);
+			drawHeart(x,y,14,"#F6CEB4",spBkCanvas);
 			x += 25;
 			if(x > 180){
 				x = 15;
@@ -303,274 +309,275 @@
 			}
 		x = 26 , y = 5
 		while(y < 290 ){
-			game.drawHeart(x,y,8,"#F6CEB4",game.spBkCanvas);
+			drawHeart(x,y,8,"#F6CEB4",spBkCanvas);
 			x += 25;
 			if(x > 160){
 				x = 26;
 				y += 40;
 				}
 			} 
-		game.spBkCanvas.cacheAsBitmap(true);
+		spBkCanvas.cacheAsBitmap(true);
 		
-		game.spCanvas = new LSprite();
-		game.mainCanvas.addChild(game.spCanvas);
+		spCanvas = new LSprite();
+		mainCanvas.addChild(spCanvas);
 		
 		
 
-		game.spCanvas = new LSprite();
-		game.mainCanvas.addChild(game.spCanvas);
-		game.spCanvas.x = UI_SP_X;
-		game.spCanvas.y = UI_SP_Y;
-		game.dataIcon=[];
+		spCanvas = new LSprite();
+		mainCanvas.addChild(spCanvas);
+		spCanvas.x = UI_SP_X;
+		spCanvas.y = UI_SP_Y;
+		dataIcon=[];
 		for (var i = 0; i < SP_W_N; i++) {
-			game.dataIcon[i]=[];
+			dataIcon[i]=[];
 			for (var j = 0; j < SP_H_N; j++) {
-				game.dataIcon[i][j] = new LBitmap();
-				game.dataIcon[i][j].x = SP_W*i;
-				game.dataIcon[i][j].y = SP_H*(SP_H_N-j-1);
-				game.spCanvas.addChild(game.dataIcon[i][j]);
+				dataIcon[i][j] = new LBitmap();
+				dataIcon[i][j].x = SP_W*i;
+				dataIcon[i][j].y = SP_H*(SP_H_N-j-1);
+				spCanvas.addChild(dataIcon[i][j]);
 			}
 		}
-		game.dataCur=[];
-		game.dataPre=[];	//double buffing for draw
-		game.dataTemp=[]; //compute buff
+		dataCur=[];
+		dataPre=[];	//double buffing for draw
+		dataTemp=[]; //compute buff
 		for (var i = 0; i < SP_W_N; i++) {
-			game.dataCur[i]=[];
-			game.dataPre[i]=[];
-			game.dataTemp[i]=[];
+			dataCur[i]=[];
+			dataPre[i]=[];
+			dataTemp[i]=[];
 		}
 		
 		
 		
-		game.spCtrlCanvas = new LSprite();
-		game.spCanvas.addChild(game.spCtrlCanvas);
-		game.spCur = [];
-		game.spPre = [];
-		game.spIcon = [];
+		spCtrlCanvas = new LSprite();
+		spCanvas.addChild(spCtrlCanvas);
+		spCur = [];
+		spPre = [];
+		spIcon = [];
 		for (i = 0; i < SP_MAX_LEN; i++) {
-			game.spCur[i] = 0;
-			game.spPre[i] = 0;
-			game.spIcon[i] = new LBitmap();
-			game.spIcon[i].x = 0;
-			game.spIcon[i].y = 0 - (i+1) * SP_H;
-			game.spCtrlCanvas.addChild(game.spIcon[i]);
+			spCur[i] = 0;
+			spPre[i] = 0;
+			spIcon[i] = new LBitmap();
+			spIcon[i].x = 0;
+			spIcon[i].y = 0 - (i+1) * SP_H;
+			spCtrlCanvas.addChild(spIcon[i]);
 		}
-		game.spX = 0;
-		game.spY = 0;
-		game.spIconX = 0;
-		game.spIconY = 0;
+		spX = 0;
+		spY = 0;
+		spIconX = 0;
+		spIconY = 0;
 		
-		game.stencilCanvas = new LSprite();
+		stencilCanvas = new LSprite();
 		var tx = UI_SP_X+SP_W*SP_W_N;
-		game.stencilCanvas.graphics.clear();
-		game.stencilCanvas.graphics.drawRect(2,"#000000",[UI_SP_X,0,SP_W*SP_W_N,UI_SP_Y]);
-		game.stencilCanvas.graphics.beginBitmapFill(game.bkBmpData);
+		stencilCanvas.graphics.clear();
+		stencilCanvas.graphics.drawRect(2,"#000000",[UI_SP_X,0,SP_W*SP_W_N,UI_SP_Y]);
+		stencilCanvas.graphics.beginBitmapFill(bkBmpData);
 		
-		game.stencilCanvas.x = 0 - UI_SP_X;
-		game.stencilCanvas.y = 0 - UI_SP_Y;
-		game.spCanvas.addChild(game.stencilCanvas);
+		stencilCanvas.x = 0 - UI_SP_X;
+		stencilCanvas.y = 0 - UI_SP_Y;
+		spCanvas.addChild(stencilCanvas);
 		
 		
-		game.mogekoCanvas = new LSprite();
-		game.mainCanvas.addChild(game.mogekoCanvas);
-		game.badEreaCount = 10;
-		game.badEreaCanvas = [];
-		for(var i = 0; i<game.badEreaCount; i++){
-			game.badEreaCanvas[i] = new LSprite();
-			game.mogekoCanvas.addChild(game.badEreaCanvas[i]);
+		mogekoCanvas = new LSprite();
+		mainCanvas.addChild(mogekoCanvas);
+		badEreaCount = 10;
+		badEreaCanvas = [];
+		for(var i = 0; i<badEreaCount; i++){
+			badEreaCanvas[i] = new LSprite();
+			mogekoCanvas.addChild(badEreaCanvas[i]);
 		}
 		
 		
-		game.uiCanvas = new LSprite();
-		game.mainCanvas.addChild(game.uiCanvas);
-		game.scoreCur = [];
-		game.scorePre = [];
-		game.scoreIcon = [];
+		uiCanvas = new LSprite();
+		mainCanvas.addChild(uiCanvas);
+		scoreCur = [];
+		scorePre = [];
+		scoreIcon = [];
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
-			game.scoreIcon[i] = new LBitmap();
+			scoreIcon[i] = new LBitmap();
 			var bitmapdata = new LBitmapData(res["n_"+0]);
-			game.scoreIcon[i].bitmapData=bitmapdata;
-			game.scoreIcon[i].x = 10+ UI_SCORE_SPLITE * i;
-			game.scoreIcon[i].y = 0;
-			game.uiCanvas.addChild(game.scoreIcon[i]);
+			scoreIcon[i].bitmapData=bitmapdata;
+			scoreIcon[i].x = 10+ UI_SCORE_SPLITE * i;
+			scoreIcon[i].y = 0;
+			uiCanvas.addChild(scoreIcon[i]);
 		}
 		
-		game.tipCur = [];
-		game.tipPre = [];
-		game.tipIcon = [];
+		tipCur = [];
+		tipPre = [];
+		tipIcon = [];
 		for (i = 0; i < SP_MAX_LEN; i++) {
-			game.tipIcon[i] = new LBitmap();
-			game.tipIcon[i].x = 400;
-			game.tipIcon[i].y = 20 + SP_H*i;
-			game.uiCanvas.addChild(game.tipIcon[i]);
+			tipIcon[i] = new LBitmap();
+			tipIcon[i].x = 400;
+			tipIcon[i].y = 20 + SP_H*i;
+			uiCanvas.addChild(tipIcon[i]);
 		}
 		
 		
-		game.endBkCanvas = new LSprite();
-		game.mainCanvas.addChild(game.endBkCanvas);
+		endBkCanvas = new LSprite();
+		mainCanvas.addChild(endBkCanvas);
 		
-		game.personCanvas = new LSprite();
-		game.mainCanvas.addChild(game.personCanvas);
+		personCanvas = new LSprite();
+		mainCanvas.addChild(personCanvas);
 		var tdata = new LBitmapData(res["p_van"]);
-		game.bkVan = new LBitmap(tdata);
-		game.bkVan.x = UI_VAN_X;
-		game.bkVan.y = UI_VAN_Y;
-		game.personCanvas.addChild(game.bkVan);
+		bkVan = new LBitmap(tdata);
+		bkVan.x = UI_VAN_X;
+		bkVan.y = UI_VAN_Y;
+		personCanvas.addChild(bkVan);
 		tdata = new LBitmapData(res["p_shilei"]);
-		game.bkShilei = new LBitmap(tdata);
-		game.bkShilei.x = UI_SHILEI_X;
-		game.bkShilei.y = UI_SHILEI_Y;
-		game.personCanvas.addChild(game.bkShilei);
+		bkShilei = new LBitmap(tdata);
+		bkShilei.x = UI_SHILEI_X;
+		bkShilei.y = UI_SHILEI_Y;
+		personCanvas.addChild(bkShilei);
 		
-//		game.VanOpaiBtn = new SButton(50,110,"good end",game.uiCanvas,function(){
-//			game.event_good_end();
-//			//game.event_bad_end();
+//		VanOpaiBtn = new SButton(50,110,"good end",uiCanvas,function(){
+//			event_good_end();
+//			//event_bad_end();
 //			
 //			});
 		
-		//game.slOpaiBtn = new SButton(100,200,"tesddt",game.uiCanvas,function(){});
+		//slOpaiBtn = new SButton(100,200,"tesddt",uiCanvas,function(){});
 
-		game.controlCanvas = new LSprite();
-		game.mainCanvas.addChild(game.controlCanvas);
-		game.controlCanvas.alpha = 0.5;
-		game.opreatBtnL = new XButton(10,250," ← ",game.controlCanvas,function(){
-			(game.controlF[0])();
+		controlCanvas = new LSprite();
+		mainCanvas.addChild(controlCanvas);
+		controlCanvas.alpha = 0.5;
+		opreatBtnL = new XButton(10,230," ← ",controlCanvas,function(){
+			(controlF[0])();
 			});
-		game.opreatBtnR = new XButton(100,250," → ",game.controlCanvas,function(){
-			(game.controlF[1])();
+		opreatBtnR = new XButton(100,230," → ",controlCanvas,function(){
+			(controlF[1])();
 			});
-		game.opreatBtnUp = new XButton(350,250," ↑ ",game.controlCanvas,function(){
-			(game.controlF[2])();
+		opreatBtnUp = new XButton(350,230," ↑ ",controlCanvas,function(){
+			(controlF[2])();
 			});
-		game.opreatBtnDown = new XButton(440,250," ↓ ",game.controlCanvas,function(){
-			(game.controlF[3])();
+		opreatBtnDown = new XButton(440,230," ↓ ",controlCanvas,function(){
+			(controlF[3])();
 			});
 		
 		
-		game.effectCanvas = new LSprite();
-		game.mainCanvas.addChild(game.effectCanvas);
+		effectCanvas = new LSprite();
+		mainCanvas.addChild(effectCanvas);
 		
 		var boomData = new LBitmapData(res["ef_yushenmu"]);
-		game.badEreaBoomImg = new LBitmap(boomData);
-		game.badEreaBoomImg.visible = false;
-		game.effectCanvas.addChild(game.badEreaBoomImg);
+		badEreaBoomImg = new LBitmap(boomData);
+		badEreaBoomImg.visible = false;
+		effectCanvas.addChild(badEreaBoomImg);
 		boomData = new LBitmapData(res["ef_boom"]);
-		game.badEreaBoomImg2 = new LBitmap(boomData);
-		game.badEreaBoomImg2.visible = false;
+		badEreaBoomImg2 = new LBitmap(boomData);
+		badEreaBoomImg2.visible = false;
 		
 		
 		
-		game.effectCanvas.addChild(game.badEreaBoomImg2);
+		effectCanvas.addChild(badEreaBoomImg2);
 		
 		//listenner
 		LGlobal.stage.addEventListener(LKeyboardEvent.KEY_PRESS,
 		function(e){
-			game.keyTriF(e.keyCode)
+			keyTriF(e.keyCode)
 			}
 		);
 		
 		//game loop
-		game.timer=TIMER(GAME_SPEED,MAX_VALUE,function(){
-			//trace("timer: "game.buff);
-				//game.BadEreaCompute();
-				game.reDrawCtrSp();
-				game.reDrawScore();
-				if(game.buff=="compute"){game.compute();}
-				switch (game.buff) {
+		timer=TIMER(GAME_SPEED,MAX_VALUE,function(){
+			//trace("timer: "buff);
+				//BadEreaCompute();
+				reDrawCtrSp();
+				reDrawScore();
+				checkFrame();
+				if(buff=="compute"){compute();}
+				switch (buff) {
 					case "laser":
-					game.laser();
+					laser();
 					break;
 					case "gameStar":
 					break;
 					case "showYSM":
-					game.clearYSM();
+					clearYSM();
 					break;
 					case "down":
-					game.down();
-					game.reDraw();
+					down();
+					reDraw();
 					break;
 					case "spNew":
-					game.spNew();
-					game.BadEreaTimesSub();
-					game.spDown();
-					game.reDrawTip();
+					spNew();
+					BadEreaTimesSub();
+					spDown();
+					reDrawTip();
 					break;
 					case "spDown":
-					game.spDown();
-					game.reDraw();
+					spDown();
+					reDraw();
 					break;
 					case "gameOver":
-					game.over();
+					over();
 					break;
 					default:
 					break;
 				}
 			});
 	};
-	game.init=function(){
-		if(!game.bCreate){
-			game.create();
-			game.bCreate = true;
+	init=function(){
+		if(!bCreate){
+			create();
+			bCreate = true;
 		}
 		g_spLen = UI_TIP_LEN;
 		
 		for (var n = 0; n < SP_W_N; n++) {
 			for (var m = 0; m < SP_H_N; m++) {
-				game.dataCur[n][m]=0;
-				game.dataPre[n][m]=0;
-				game.dataTemp[n][m]=0;
+				dataCur[n][m]=0;
+				dataPre[n][m]=0;
+				dataTemp[n][m]=0;
 				var bitmapdata= new LBitmapData();
-				game.dataIcon[n][m].bitmapData = bitmapdata;
+				dataIcon[n][m].bitmapData = bitmapdata;
 			}
 		}
 		for (var i = 0; i < SP_MAX_LEN; i++) {
 			if(i<g_spLen){
-				game.tipCur[i] = RANDOM(1,g_spRandomMax);
-				game.tipPre[i] = 0;
+				tipCur[i] = RANDOM(1,g_spRandomMax);
+				tipPre[i] = 0;
 				}
 			else{
-				game.tipCur[i] = 0;
-				game.tipPre[i] = 0;
+				tipCur[i] = 0;
+				tipPre[i] = 0;
 				}
 			var bitmapdata= new LBitmapData();
-			game.tipIcon[i].bitmapData = bitmapdata;
+			tipIcon[i].bitmapData = bitmapdata;
 		}
 		
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
-			game.scoreCur[i] = 0;
-			game.scorePre[i] = 0;
+			scoreCur[i] = 0;
+			scorePre[i] = 0;
 			var bitmapdata= new LBitmapData(res["n_0"]);
-			game.scoreIcon[i].bitmapData = bitmapdata;
+			scoreIcon[i].bitmapData = bitmapdata;
 		}
 		
 		for (var i = 0; i < SP_MAX_LEN; i++) {
 			if(i<g_spLen){
-				game.spCur[i] = RANDOM(1,g_spRandomMax);
-				game.spPre[i] = 0;
+				spCur[i] = RANDOM(1,g_spRandomMax);
+				spPre[i] = 0;
 				}
 			else{
-				game.spCur[i] = 0;
-				game.spPre[i] = 0;
+				spCur[i] = 0;
+				spPre[i] = 0;
 				}
 			var bitmapdata= new LBitmapData();
-			game.spIcon[i].bitmapData = bitmapdata;
+			spIcon[i].bitmapData = bitmapdata;
 		}
-		game.spCurLen = 3;
-		game.spShowX = SP_W_N * SP_NEW_X;
-		game.spShowY = 0;
-		game.score = 0;
-		game.scoreShow = 0;
-		game.lineAdd=0;//combo 
-		game.spSwapIdx = 0; //swap square idx swap idx square and idx+1 square
-		game.spSpeed = 5;
-		game.spSpeedPre = 5;
-		game.spSpeedLock = false; //速度更改锁
+		spCurLen = 3;
+		spShowX = SP_W_N * SP_NEW_X;
+		spShowY = 0;
+		score = 0;
+		scoreShow = 0;
+		lineAdd=0;//combo 
+		spSwapIdx = 0; //swap square idx swap idx square and idx+1 square
+		spSpeed = 5;
+		spSpeedPre = 5;
+		spSpeedLock = false; //速度更改锁
 		
 		//初始化炸毁区域
-		game.badErea = [];
-		for(var i = 0; i<game.badEreaCount; i++){
-			game.badErea[i]={};
-			var t = game.badErea[i];
+		badErea = [];
+		for(var i = 0; i<badEreaCount; i++){
+			badErea[i]={};
+			var t = badErea[i];
 			t.x = 0;
 			t.y = 0;
 			t.sizeX = 0;
@@ -581,84 +588,121 @@
 			}
 		
 		//初始化操作函数
-		game.controlF = [];
-		game.controlF[0] = game.spLeft;
-		game.controlF[1] = game.spRight;
-		game.controlF[2] = game.spChang;
-		game.controlF[3] = game.spOver;
+		controlF = [];
+		controlF[0] = spLeft;
+		controlF[1] = spRight;
+		controlF[2] = spChang;
+		controlF[3] = spOver;
 		
 
 		
 		//初始化特殊长度回合
-		game.longSpTimes = 1;
+		longSpTimes = 1;
 		//给予一次保护方块机会
 		g_bWTF = true;
 		
-		game.buff="spNew";
+		if(LGlobal.os == OS_PC){
+					g_showType = "native";
+					g_needChangeCanvas = true;
+					}
+					else{
+						g_showType = "full";
+						g_needChangeCanvas = true;
+						}
+		
+		buff="waite";
+		var txtData = [
+		{text:"简单说一下...",type:"right"}
+		,{text:"努力玩到高分可以有好结局...",type:"left"}
+		,{text:"电脑可以用wsad操控，q键切换全屏",type:"left"}
+		,{text:"祝你玩得愉快...",type:"left"}
+		];
+		TxtDlg.show(txtData,function(){
+			buff="spNew";
+			});
+		
 	};
-	game.over=function(){
-		game.buff="waite";
+	
+	checkFrame = function(){
+		if(g_showType == "full"){
+			LGlobal.screen(LStage.FULL_SCREEN);
+			if(g_needChangeCanvas){
+				mainCanvas.addChild(controlCanvas);
+				g_needChangeCanvas = false;
+				}
+			}
+			else{
+				LGlobal.screen(1);
+				}
+				if(g_needChangeCanvas){
+				mainCanvas.removeChild(controlCanvas);
+				g_needChangeCanvas = false;
+				}
+		}
+	
+	over=function(){
+		buff="waite";
 	};
 
-	game.compute=function(){
-		game.buff="spNew";
+	compute=function(){
+		buff="spNew";
 		for (var x = 0; x < SP_W_N; x++) {
 			for(var y=0;y < SP_H_N;y++){
-				if(game.dataCur[x][y]!=0&&game.dataCur[x][y]!=8){
+				if(dataCur[x][y]!=0&&dataCur[x][y]!=8){
 					if(y<SP_H_N-2){
-						if(game.dataCur[x][y]==game.dataCur[x][y+1]&&game.dataCur[x][y]==game.dataCur[x][y+2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x][y+1]=9;
-							game.dataTemp[x][y+2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x][y+1]&&dataCur[x][y]==dataCur[x][y+2]){
+							dataTemp[x][y]=9;
+							dataTemp[x][y+1]=9;
+							dataTemp[x][y+2]=9;
+							buff="showYSM";
 						}
 					}
 					if(y>=2){
-						if(game.dataCur[x][y]==game.dataCur[x][y-1]&&game.dataCur[x][y]==game.dataCur[x][y-2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x][y-1]=9;
-							game.dataTemp[x][y-2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x][y-1]&&dataCur[x][y]==dataCur[x][y-2]){
+							dataTemp[x][y]=9;
+							dataTemp[x][y-1]=9;
+							dataTemp[x][y-2]=9;
+							buff="showYSM";
 						}
 					}
 					if(x<SP_W_N-2){
-						if(game.dataCur[x][y]==game.dataCur[x+1][y]&&game.dataCur[x][y]==game.dataCur[x+2][y]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x+1][y]=9;
-							game.dataTemp[x+2][y]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x+1][y]&&dataCur[x][y]==dataCur[x+2][y]){
+							dataTemp[x][y]=9;
+							dataTemp[x+1][y]=9;
+							dataTemp[x+2][y]=9;
+							buff="showYSM";
 						}
 					}
 					if(y<SP_H_N-2&&x<SP_W_N-2){
-						if(game.dataCur[x][y]==game.dataCur[x+1][y+1]&&game.dataCur[x][y]==game.dataCur[x+2][y+2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x+1][y+1]=9;
-							game.dataTemp[x+2][y+2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x+1][y+1]&&dataCur[x][y]==dataCur[x+2][y+2]){
+							dataTemp[x][y]=9;
+							dataTemp[x+1][y+1]=9;
+							dataTemp[x+2][y+2]=9;
+							buff="showYSM";
 						}
 					}
 					if(x>=2&&y<SP_H_N-2){
-						if(game.dataCur[x][y]==game.dataCur[x-1][y+1]&&game.dataCur[x-1][y+1]==game.dataCur[x-2][y+2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x-1][y+1]=9;
-							game.dataTemp[x-2][y+2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x-1][y+1]&&dataCur[x-1][y+1]==dataCur[x-2][y+2]){
+							dataTemp[x][y]=9;
+							dataTemp[x-1][y+1]=9;
+							dataTemp[x-2][y+2]=9;
+							buff="showYSM";
 						}
 					}
 					if(x>=2&&y>=2){
-						if(game.dataCur[x][y]==game.dataCur[x-1][y-1]&&game.dataCur[x-1][y-1]==game.dataCur[x-2][y-2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x-1][y-1]=9;
-							game.dataTemp[x-2][y-2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x-1][y-1]&&dataCur[x-1][y-1]==dataCur[x-2][y-2]){
+							dataTemp[x][y]=9;
+							dataTemp[x-1][y-1]=9;
+							dataTemp[x-2][y-2]=9;
+							buff="showYSM";
 						}
 					}
 					if(x<SP_W_N-2&&y>=2){
-						if(game.dataCur[x][y]==game.dataCur[x+1][y-1]&&game.dataCur[x+1][y-1]==game.dataCur[x+2][y-2]){
-							game.dataTemp[x][y]=9;
-							game.dataTemp[x+1][y-1]=9;
-							game.dataTemp[x+2][y-2]=9;
-							game.buff="showYSM";
+						if(dataCur[x][y]==dataCur[x+1][y-1]&&dataCur[x+1][y-1]==dataCur[x+2][y-2]){
+							dataTemp[x][y]=9;
+							dataTemp[x+1][y-1]=9;
+							dataTemp[x+2][y-2]=9;
+							buff="showYSM";
 						}
 					}
 				}
@@ -666,59 +710,59 @@
 			}
 		}
 		
-		if(game.buff =="showYSM"){
-			game.buff = "waite";
-			game.addYSM();
-			game.reDraw();
+		if(buff =="showYSM"){
+			buff = "waite";
+			addYSM();
+			reDraw();
 			}
 		
 	};
-	game.addYSM=function(){
+	addYSM=function(){
 		var num=0;
 		var showX=0;
 		var showY=0;
 		for (var x = 0; x < SP_W_N; x++) {
 			for (var y = 0; y < SP_H_N; y++) {
-				if(game.dataTemp[x][y]==9){
-					game.dataCur[x][y]=7;
+				if(dataTemp[x][y]==9){
+					dataCur[x][y]=7;
 					num+=ADD_SCORE_VAL;
 					showX=x;
 					showY=y;
 				}
 			}
 		}
-		game.lineAdd+=1;
-		num=num*game.lineAdd;
-		game.changeScore(num,240+showX*40,50+(9-showY)*40);
+		lineAdd+=1;
+		num=num*lineAdd;
+		changeScore(num,240+showX*40,50+(9-showY)*40);
 		for(var i in GENG){
-			if(GENG[i].num == game.score){
-				game.buff="waite";
+			if(GENG[i].num == score){
+				buff="waite";
 				var txtData = [{text:GENG[i].text,type:"left"}];
 				TxtDlg.show(txtData,function(){
-					game.event_raffle();
+					event_raffle();
 					});
 				return;
 				}
 			}
 		TIMER(500,1,function(){
-				game.buff ="showYSM";
+				buff ="showYSM";
 				});
 	};
-	game.clearYSM=function(){
+	clearYSM=function(){
 		for (var x = 0; x < SP_W_N; x++) {
 			for (var y = 0; y < SP_H_N; y++) {
-				game.dataTemp[x][y]=0;
-				if(game.dataCur[x][y]==7){
-					game.dataCur[x][y]=0;
+				dataTemp[x][y]=0;
+				if(dataCur[x][y]==7){
+					dataCur[x][y]=0;
 				}
 			}
 		}
-		game.buff="down";
+		buff="down";
 	};
 
-	game.down=function(){
-		game.buff="compute";
-		var data = game.dataCur;
+	down=function(){
+		buff="compute";
+		var data = dataCur;
 		for (var x1 = 0; x1 < SP_W_N; x1++) {
 			for (var y1 = 0; y1 < SP_H_N-1; y1++) {
 				var curIcon = data[x1][y1];
@@ -726,216 +770,217 @@
 				if(curIcon==0&&preIcon>0&&preIcon<8){																					 
 					for (var z1 = y1; z1 < SP_H_N-1; z1++) {
 						data[x1][z1]=data[x1][z1+1];
-						game.buff="down";	
+						buff="down";	
 					}
 					data[x1][SP_H_N-1]=0;	
 				}
 			}
 		}
 	};
-	game.spNew=function(){
-		game.spCur=game.tipCur.concat();
+	spNew=function(){
+		spCur=tipCur.concat();
 		for(var y = 0; y < SP_MAX_LEN;y++){
 			if(y<g_spLen){
-				game.tipCur[y]=RANDOM(1,g_spRandomMax);
+				tipCur[y]=RANDOM(1,g_spRandomMax);
 				}
 			else{
-				game.tipCur[y] = 0;
+				tipCur[y] = 0;
 				}
 			}
-		game.spX=SP_NEW_X;
-		game.spY=SP_H_N;
-		game.spIconX=SP_NEW_X * SP_W;
-		game.spIconX=0;
-		game.lineAdd=0;
-		game.spCtrlCanvas.visible = true;
-		game.spCtrlCanvas.x = SP_NEW_X * SP_W;
-		game.spCtrlCanvas.y = 0;
+		spX=SP_NEW_X;
+		spY=SP_H_N;
+		spIconX=SP_NEW_X * SP_W;
+		spIconX=0;
+		lineAdd=0;
+		spCtrlCanvas.visible = true;
+		spCtrlCanvas.x = SP_NEW_X * SP_W;
+		spCtrlCanvas.y = 0;
 		
-		if(game.dataCur[SP_NEW_X][SP_H_N-g_spLen-1]!=0&&g_bWTF){ //特殊事件_保护秘籍
+		if(dataCur[SP_NEW_X][SP_H_N-g_spLen-1]!=0&&g_bWTF){ //特殊事件_保护秘籍
 			g_bWTF = false; //只能用一次
 			for(var i=0; i<g_spLen;i++){
-				game.spCur[i]=7;
+				spCur[i]=7;
 				}
 		}
 		//计算特殊长度回合
-		if(game.longSpTimes>1){
-			game.longSpTimes --;
+		if(longSpTimes>1){
+			longSpTimes --;
 		}
 		else{
 			g_spLen=UI_TIP_LEN	;
 		}
 		
 	};
-	game.spAdd=function(){
-		for (var i = 0; i < SP_H_N-game.spY&&i<SP_MAX_LEN; i++) {
- 			var x=game.spX;
-			var y=game.spY;
-	 		game.dataCur[x][y+i]=game.spCur[i];
+	spAdd=function(){
+		for (var i = 0; i < SP_H_N-spY&&i<SP_MAX_LEN; i++) {
+ 			var x=spX;
+			var y=spY;
+	 		dataCur[x][y+i]=spCur[i];
 		}
-		game.spCtrlCanvas.visible = false;
+		spCtrlCanvas.visible = false;
 	};
 	
-	game.spDown=function(){
-		game.buff="spDown";
-		game.spCtrlCanvas.y += game.spSpeed;
-		var curY = SP_H_N - Math.floor(game.spCtrlCanvas.y/SP_H);
-		if(curY == game.spY&&curY!=SP_H_N){	
+	spDown=function(){
+		buff="spDown";
+		spCtrlCanvas.y += spSpeed;
+		var curY = SP_H_N - Math.floor(spCtrlCanvas.y/SP_H);
+		if(curY == spY&&curY!=SP_H_N){	
 			return ;
 			}
 			else
 				{
-					game.spY = curY;
+					spY = curY;
 				}
-		if(game.spY>0&&game.dataCur[game.spX][game.spY-1]==0){		
+		if(spY>0&&dataCur[spX][spY-1]==0){		
 		}
 		else {
-			game.spAdd();
-			game.buff="compute";
+			spAdd();
+			buff="compute";
 			
 			
-			game.spSpeedLock = false; //恢复加速功能
-			if(game.spSpeed >= SP_DOWN_SPEED_QUICK){
-				 game.spSpeed = game.spSpeedPre;	
+			spSpeedLock = false; //恢复加速功能
+			if(spSpeed >= SP_DOWN_SPEED_QUICK){
+				 spSpeed = spSpeedPre;	
 				}
 			
-			if(game.dataCur[game.spX][game.spY]==7){
-				game.square = game.dataCur[game.spX][game.spY-1];
-				game.buff = "laser";
-				if(game.square == 8){ //如果碰到了损坏区域，完全清除！
-					game.BadEreaDestory();
+			if(dataCur[spX][spY]==7){
+				square = dataCur[spX][spY-1];
+				buff = "laser";
+				if(square == 8){ //如果碰到了损坏区域，完全清除！
+					BadEreaDestory();
 					}
 				}
-			if(game.spY==SP_H_N){
+			if(spY==SP_H_N){
 				if(g_endState == 0){
-						game.buff="gameOver";
+						buff="gameOver";
 						var txtData = [{text:"这就死了？渣渣...",type:"left"},
 						{text:"我觉得你有进步的空间",type:"right"},
 						{text:"那你加油咯！",type:"left"}
 						];
 						TxtDlg.show(txtData,function(){
-						game.init();
+						init();
 						});
 					}
 				if(g_endState == 1){
-					game.event_bad_end();
+					event_bad_end();
 					}
 				if(g_endState == 2){
-					game.event_good_end();
+					event_good_end();
 					}
 				
 				
-				//game.dataIconFly();		
+				//dataIconFly();		
 				}
 		}
 	};
-	game.spLeft=function(){
-		if(game.spX>0&&game.buff=="spDown"){
+	spLeft=function(){
+		if(spX>0&&buff=="spDown"){
 			var bMove = true;
 			for(var i = 0; i < g_spLen; i++){
-				var x = game.spX-1;
-				var y = SP_H_N - Math.ceil((game.spCtrlCanvas.y+1)/SP_H) +i
-				if(y<SP_H_N&&game.dataCur[x][y]!=0){
+				var x = spX-1;
+				var y = SP_H_N - Math.ceil((spCtrlCanvas.y+1)/SP_H) +i
+				if(y<SP_H_N&&dataCur[x][y]!=0){
 					bMove = false;
 					}
 				}
 			if(bMove){ //待修改 新增置空方块
-				game.spX--;
-				game.spCtrlCanvas.x -= SP_W;
+				spX--;
+				spCtrlCanvas.x -= SP_W;
 			}
 		}
 	};
 	
-	game.spRight=function(){
-		if(game.spX < SP_W_N-1&& game.buff == "spDown"){
+	spRight=function(){
+		if(spX < SP_W_N-1&& buff == "spDown"){
 			var bMove = true;
 			for(var i = 0; i < g_spLen; i++){
-				var x = game.spX+1;
-				var y = SP_H_N - Math.ceil((game.spCtrlCanvas.y+1)/SP_H) +i
-				if(y<SP_H_N&&game.dataCur[x][y]!=0){
+				var x = spX+1;
+				var y = SP_H_N - Math.ceil((spCtrlCanvas.y+1)/SP_H) +i
+				if(y<SP_H_N&&dataCur[x][y]!=0){
 					bMove = false;
 					}
 				}
 			if(bMove){ //待修改 新增置空方块
-				game.spX++;
-				game.spCtrlCanvas.x += SP_W;
+				spX++;
+				spCtrlCanvas.x += SP_W;
 			}
 		}
 	};
-	game.spOver=function(){
-		if(game.buff!="spDown"||game.spSpeedLock){return 0;}
-		game.spSpeedLock = true;
-		game.spSpeedPre = game.spSpeed;	
-		game.spSpeed = SP_DOWN_SPEED_QUICK;
+	spOver=function(){
+		if(buff!="spDown"||spSpeedLock){return 0;}
+		spSpeedLock = true;
+		spSpeedPre = spSpeed;	
+		spSpeed = SP_DOWN_SPEED_QUICK;
 		TIMER(500,1,function(){
-			if(game.spSpeedLock){
-					game.spSpeed = game.spSpeedPre;	;
-					game.spSpeedLock = false;
+			if(spSpeedLock){
+					spSpeed = spSpeedPre;	;
+					spSpeedLock = false;
 				}
 			});
 	};
 	
-	game.spChang=function(){
-		if(game.buff!="spDown"){return 0;}
-		var idx = game.spSwapIdx;
-		var swapIdx = game.spSwapIdx+1;
+	spChang=function(){
+		if(buff!="spDown"){return 0;}
+		var idx = spSwapIdx;
+		var swapIdx = spSwapIdx+1;
 		
-		var num = game.spCur[idx];
-		game.spCur[idx] = game.spCur[swapIdx];
-		game.spCur[swapIdx] = num;
+		var num = spCur[idx];
+		spCur[idx] = spCur[swapIdx];
+		spCur[swapIdx] = num;
 		
-		game.spSwapIdx ++;
-		if(game.spSwapIdx >= game.spCurLen - 1){
-			game.spSwapIdx = 0;
+		spSwapIdx ++;
+		if(spSwapIdx >= spCurLen - 1){
+			spSwapIdx = 0;
 			} 
 	};
 
-	game.computeSpeed = function(){
-		var tempSpeed = game.spSpeed;
+	computeSpeed = function(){
+		var tempSpeed = spSpeed;
 		var tempRandom = g_spRandomMax;
 		var tempAdd = ADD_SCORE_VAL;
-		if(game.score<100){
-			game.spSpeed=5;
+		if(score<100){
+			spSpeed=5;
 			g_spRandomMax = 4;
 			g_endState = 0;
 			ADD_SCORE_VAL = 1;
 			}
-		if(game.score>=100){
-			game.spSpeed=10;
+		if(score>=100){
+			spSpeed=10;
 			g_spRandomMax = 5;
 			ADD_SCORE_VAL = 3;
 			}
-		if(game.score>500){
-				game.spSpeed=10;
+		if(score>500){
+				spSpeed=10;
 				g_spRandomMax = 6;
 				g_endState = 1;
 				ADD_SCORE_VAL = 5;
 			}
-		if(game.score>1000){
-			game.spSpeed= 10;
+		if(score>1000){
+			spSpeed= 10;
 			g_spRandomMax = 7;
 			ADD_SCORE_VAL = 7;
+			g_endState = 2;
 			}
-		if(game.score>2000){
-			game.spSpeed=15;
+		if(score>2000){
+			spSpeed=15;
 			g_spRandomMax = 7;
 			g_endState = 2;
 			ADD_SCORE_VAL = 11;
 			}
-		if(game.score>4500){
-			game.spSpeed=20;
+		if(score>4500){
+			spSpeed=20;
 			g_spRandomMax = 7;
 			g_endState = 2;
 			ADD_SCORE_VAL = 17;
 			}
-		if(game.score>6000){
-			game.spSpeed=25;
+		if(score>6000){
+			spSpeed=25;
 			g_spRandomMax = 7;
 			g_endState = 2;
 			ADD_SCORE_VAL = 27;
 			}
 		var txtData =[];
-		if(game.spSpeed > tempSpeed&&game.spSpeed!=SP_DOWN_SPEED_QUICK){
+		if(spSpeed > tempSpeed&&spSpeed!=SP_DOWN_SPEED_QUICK){
 			txtData.push({text:"速度增加！游得很快！",type:"left"});
 			}
 		if(g_spRandomMax > tempRandom){
@@ -950,47 +995,49 @@
 			}
 		
 		}
-	game.changeScore=function(_score,_x,_y){
-		game.computeSpeed();
-		game.tempScore=[];
-		game.score+=_score;
-		if(_score<0){_score=0-_score;game.tempScore.push(11);}
+	changeScore=function(_score,_x,_y){
+		computeSpeed();
+		tempScore=[];
+		score+=_score;
+		var txtData = "加"+_score+"分";
+		TxtDlg.show([{text:txtData,type:"left"}],function(){});
+		if(_score<0){_score=0-_score;tempScore.push(11);}
 		else {
-			game.tempScore.push(10);
+			tempScore.push(10);
 		}
 		bAddStar=false;
 		var tnum = 100000;
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
-		 var num = Math.floor(game.score%tnum/(tnum/10));
+		 var num = Math.floor(score%tnum/(tnum/10));
 		 if(tnum!=0||bAddStar){
-		 	game.tempScore.push(tnum);
+		 	tempScore.push(tnum);
 		 	bAddStar =true;
 		 	}
 		 tnum = tnum / 10;
 		}
-		for (var i = 0; i < game.tempScore.length; i++) {
+		for (var i = 0; i < tempScore.length; i++) {
 //			t=Sys.newBitmap({lifeTime:3,motion:{x:{fromValue:_x+i*20},y:{fromValue: _y, toValue: _y-50, lifeTime: 2, startDelay:500, easing:"None"}}});
 //			t.x=_x+i*20;
 //			t.y=_y;
-//			game.mainCanvas.addChild(t); //待修改 加分动画
+//			mainCanvas.addChild(t); //待修改 加分动画
 		}
 
 	};
 	
-	game.reDrawTip = function(){
+	reDrawTip = function(){
 		var bmpData;
 		for(var i = 0; i < SP_MAX_LEN; i++){
-			var curid = game.tipCur[i];
+			var curid = tipCur[i];
 			if( i < g_spLen){
-				if(curid!=game.tipPre[i]){
+				if(curid!=tipPre[i]){
 					if(curid > 0&&curid < 9){
 						bmpData = new LBitmapData(res["i_"+curid]);
-						game.tipIcon[g_spLen-1-i].bitmapData = bmpData;
+						tipIcon[g_spLen-1-i].bitmapData = bmpData;
 					}
 					else
 					{
 						bmpData = new LBitmapData();
-						game.tipIcon[g_spLen-1-i].bitmapData = bmpData;
+						tipIcon[g_spLen-1-i].bitmapData = bmpData;
 					}
 					}
 				}
@@ -999,180 +1046,180 @@
 
 				}
 			}
-			game.tipPre = game.tipCur.concat();
+			tipPre = tipCur.concat();
 		};
-	game.reDrawScore=function(){
+	reDrawScore=function(){
 		var tnum = 10;
 		var i;
 		var base = 1;
 		var times = 1;
-		while(game.score-game.scoreShow >= base){
-			game.scoreShow += times;
+		while(score-scoreShow >= base){
+			scoreShow += times;
 			times = times * 10;
 			base += times;
 			}
 
 		for (i = 0; i < UI_SCORE_LEN ; i++) {
-			var num = Math.floor(game.scoreShow%tnum/(tnum/10));
+			var num = Math.floor(scoreShow%tnum/(tnum/10));
 			tnum = 10* tnum;
-			game.scoreCur[i] = num;
-			if(game.scoreCur[i]!=game.scorePre[i]){
+			scoreCur[i] = num;
+			if(scoreCur[i]!=scorePre[i]){
 				var bitmapdata = new LBitmapData(res["n_"+num]);
-				game.scoreIcon[UI_SCORE_LEN-i-1].bitmapData=bitmapdata;
+				scoreIcon[UI_SCORE_LEN-i-1].bitmapData=bitmapdata;
 			}
-			game.scorePre[i] = game.scoreCur[i];
+			scorePre[i] = scoreCur[i];
 		}
 	};
 	
-	game.reDrawCtrSp = function(){
+	reDrawCtrSp = function(){
 		for(var y = 0; y < SP_MAX_LEN; y++){
-			var curid = game.spCur[y];
-			if(curid != game.spPre[y]){
+			var curid = spCur[y];
+			if(curid != spPre[y]){
 				if(curid == 0|| curid > 8){ //draw invisible square
 						var bitmapdata= new LBitmapData();
-						game.spIcon[y].bitmapData = bitmapdata;
+						spIcon[y].bitmapData = bitmapdata;
 						}
 					else
 						{
 							var bitmapdata= new LBitmapData(res[("i_"+curid)]);
-							game.spIcon[y].bitmapData = bitmapdata;
+							spIcon[y].bitmapData = bitmapdata;
 						} 
 				}
 			}
-			game.spPre = game.spCur.concat();
+			spPre = spCur.concat();
 		}
 	
-	game.reDraw=function(){
+	reDraw=function(){
 		//draw icons
 		for (var x = 0; x < SP_W_N; x++) {
 			for (var y = 0; y < SP_H_N; y++) {
-				var curid = game.dataCur[x][y]
-				if(curid!=game.dataPre[x][y]){ //double buffering draw icon
+				var curid = dataCur[x][y]
+				if(curid!=dataPre[x][y]){ //double buffering draw icon
 					if(curid < 1|| curid > 7){ //draw invisible square
 						var bitmapdata= new LBitmapData();
-						game.dataIcon[x][y].bitmapData = bitmapdata;
+						dataIcon[x][y].bitmapData = bitmapdata;
 						}
 					else
 						{
 							var txt = res[("i_"+curid)];
 							var bitmapdata= new LBitmapData(txt);
-							game.dataIcon[x][y].bitmapData = bitmapdata;
+							dataIcon[x][y].bitmapData = bitmapdata;
 						} 
 				}
-				game.dataPre[x][y]=game.dataCur[x][y]; //update draw buff data
+				dataPre[x][y]=dataCur[x][y]; //update draw buff data
 			}
 		}
 	};
 	
-	game.dataIconFly=function(){
+	dataIconFly=function(){
 		var tTimer=0;
-		game.buff="waite";
+		buff="waite";
 		TIMER(100,20,function(){
 			for (var i = 0; i < SP_W_N; i++) {
 				for (var j = 0; j < 6; j++) {
-					game.dataIcon[i][j].y+=RANDOM(1,10);
-					game.dataIcon[i][j].rotate+=RANDOM(2,30);
-					game.dataIcon[i][j].alpha-=0.049;
-					if(i<3){game.dataIcon[i][j].x-=RANDOM(5,15);}
-					else{game.dataIcon[i][j].x+=RANDOM(5,15);;}
+					dataIcon[i][j].y+=RANDOM(1,10);
+					dataIcon[i][j].rotate+=RANDOM(2,30);
+					dataIcon[i][j].alpha-=0.049;
+					if(i<3){dataIcon[i][j].x-=RANDOM(5,15);}
+					else{dataIcon[i][j].x+=RANDOM(5,15);;}
 					}
 				}
 			});
 		TIMER(3000,1,function(){
 			for (var i = 0; i < SP_W_N; i++) {
 				for (var j = 0; j < 6; j++) {
-					game.dataIcon[i][j].x = SP_W*i;
-					game.dataIcon[i][j].y = SP_H*(SP_H_N-j-1);
-					game.dataCur[i][j] = 0;
-					game.dataIcon[i][j].rotate=0;
-					game.dataIcon[i][j].alpha=1;
+					dataIcon[i][j].x = SP_W*i;
+					dataIcon[i][j].y = SP_H*(SP_H_N-j-1);
+					dataCur[i][j] = 0;
+					dataIcon[i][j].rotate=0;
+					dataIcon[i][j].alpha=1;
 				}
 			}
-			game.reDraw();
-			game.buff = "down";
+			reDraw();
+			buff = "down";
 			});
 		};
 
 		
-		game.BadEreaClear = function(){
+		BadEreaClear = function(){
 			for (var x = 0; x < SP_W_N; x++) {
 				for(var y=0;y < SP_H_N;y++){
-					if(game.dataCur[x][y]==8){
-						game.dataCur[x][y]=0;
+					if(dataCur[x][y]==8){
+						dataCur[x][y]=0;
 						}
 				}
 			}
 			}
-		game.BadEreaAdd = function(){
-			for(var i = 0; i < game.badEreaCount; i++){
-				if(game.badErea[i].showTimes > 0){
-					var x = Math.round((game.badErea[i].x - UI_SP_X)/SP_W);
-					var y = SP_H_N - 1 - Math.round((game.badErea[i].y - UI_SP_Y)/SP_H);
-					for (var n = 0; n < game.badErea[i].sizeX; n++) {
-						for(var m = 0;m < game.badErea[i].sizeY; m++){
+		BadEreaAdd = function(){
+			for(var i = 0; i < badEreaCount; i++){
+				if(badErea[i].showTimes > 0){
+					var x = Math.round((badErea[i].x - UI_SP_X)/SP_W);
+					var y = SP_H_N - 1 - Math.round((badErea[i].y - UI_SP_Y)/SP_H);
+					for (var n = 0; n < badErea[i].sizeX; n++) {
+						for(var m = 0;m < badErea[i].sizeY; m++){
 						if(x+n>=0&&x+n<SP_W_N&&y-m>=0&&y-m<SP_H_N){
-							game.dataCur[x+n][y-m] = 8;
+							dataCur[x+n][y-m] = 8;
 							}
 						}
 					}
 					}
 				}
 			}
-		game.BadEreaDestory = function(){
-			for(var i = 0; i < game.badEreaCount; i++){
-			game.badErea[i].showTimes = 0;
+		BadEreaDestory = function(){
+			for(var i = 0; i < badEreaCount; i++){
+			badErea[i].showTimes = 0;
 			}
-			game.BadEreaDrawPath();
+			BadEreaDrawPath();
 		}
-		game.BadEreaTimesSub = function(){
-			for(var i = 0; i < game.badEreaCount; i++){
-				if(game.badErea[i].showTimes > 0){
-					game.badErea[i].showTimes -= 1;
+		BadEreaTimesSub = function(){
+			for(var i = 0; i < badEreaCount; i++){
+				if(badErea[i].showTimes > 0){
+					badErea[i].showTimes -= 1;
 					}
 				}
-				game.BadEreaCompute();
+				BadEreaCompute();
 			}
 		
-		game.BadEreaCompute = function(){
-			game.BadEreaClear();
-			game.BadEreaAdd();
-			game.BadEreaDrawPath();
+		BadEreaCompute = function(){
+			BadEreaClear();
+			BadEreaAdd();
+			BadEreaDrawPath();
 			}
-		game.BadEreaDrawBoom = function(_x,_y,_w,_h)
+		BadEreaDrawBoom = function(_x,_y,_w,_h)
 		{
-			if(typeof(game.BadEreaDrawBoomLock) == "undefined"){
-				game.BadEreaDrawBoomLock = false;
+			if(typeof(BadEreaDrawBoomLock) == "undefined"){
+				BadEreaDrawBoomLock = false;
 				}
-			if(game.BadEreaDrawBoomLock){return;}
-			game.buff = "waite";
-			game.BadEreaDrawBoomLock = true;
-			game.badEreaBoomImg.visible = true;
-			game.badEreaBoomImg.x = 55;
-			game.badEreaBoomImg.y = 300;
-			game.badEreaBoomImg.scaleX = 0.4;
-			game.badEreaBoomImg.scaleY = 0.4;
-			game.badEreaBoomImg.rotate = 0;
-			game.badEreaBoomImg2.visible = false;
+			if(BadEreaDrawBoomLock){return;}
+			buff = "waite";
+			BadEreaDrawBoomLock = true;
+			badEreaBoomImg.visible = true;
+			badEreaBoomImg.x = 55;
+			badEreaBoomImg.y = 300;
+			badEreaBoomImg.scaleX = 0.4;
+			badEreaBoomImg.scaleY = 0.4;
+			badEreaBoomImg.rotate = 0;
+			badEreaBoomImg2.visible = false;
 			
 			var tx =Math.round(_w - 100)/2;
 			if(tx<0){tx=0;}
-			game.badEreaBoomImg2.x = _x+tx-10;
+			badEreaBoomImg2.x = _x+tx-10;
 			var ty =Math.round(_h - 150)/2;
 			if(ty<0){ty=0;}
-			game.badEreaBoomImg2.y = _y+ty-10;
-			game.badEreaBoom_x = _x;
-			game.badEreaBoom_y = _y;
-			game.badEreaBoom_w = _w;
-			game.badEreaBoom_h = _h;
+			badEreaBoomImg2.y = _y+ty-10;
+			badEreaBoom_x = _x;
+			badEreaBoom_y = _y;
+			badEreaBoom_w = _w;
+			badEreaBoom_h = _h;
 			
-			LTweenLite.to(game.badEreaBoomImg,2,{x:_x+tx,y:_y+ty,scaleX:1,scaleY:1,delay:1,rotate:3600,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
-				game.badEreaBoomImg.visible = false;
-				game.badEreaBoomImg2.visible = true;
+			LTweenLite.to(badEreaBoomImg,2,{x:_x+tx,y:_y+ty,scaleX:1,scaleY:1,delay:1,rotate:3600,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+				badEreaBoomImg.visible = false;
+				badEreaBoomImg2.visible = true;
 				TIMER(500,1,function(){
-					game.badEreaBoomImg2.visible = false;
-					game.BadEreaDrawBoomLock = false;
-					game.boom(game.badEreaBoom_x,game.badEreaBoom_y,game.badEreaBoom_w,game.badEreaBoom_h);
-					game.buff = "spDown";
+					badEreaBoomImg2.visible = false;
+					BadEreaDrawBoomLock = false;
+					boom(badEreaBoom_x,badEreaBoom_y,badEreaBoom_w,badEreaBoom_h);
+					buff = "spDown";
 					}
 				);
 				
@@ -1181,42 +1228,42 @@
 			
 		}
 		
-		game.BadEreaDrawPath = function(){
-				for(var i = 0; i < game.badEreaCount; i++){
-					if(game.badErea[i].showTimes<1){
-							game.badEreaCanvas[i].graphics.clear();
+		BadEreaDrawPath = function(){
+				for(var i = 0; i < badEreaCount; i++){
+					if(badErea[i].showTimes<1){
+							badEreaCanvas[i].graphics.clear();
 							}
-					if(game.badErea[i].showTimes>0&&!game.badErea[i].bDrawed){
-						game.badErea[i].bDrawed = true;
-						game.badEreaPathCur = game.badErea[i].drawPath
-						var g = game.badEreaCanvas[i].graphics;
+					if(badErea[i].showTimes>0&&!badErea[i].bDrawed){
+						badErea[i].bDrawed = true;
+						badEreaPathCur = badErea[i].drawPath
+						var g = badEreaCanvas[i].graphics;
 						g.clear();
 						g.drawRect(2,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H]);
 
 						g.lineStyle = "#000000";
-						g.beginBitmapFill(game.mogekoData);
+						g.beginBitmapFill(mogekoData);
 						g.beginPath();
-						var path = game.badErea[i].drawPath;
+						var path = badErea[i].drawPath;
 
 						g.drawVertices(2,"#000000",path);
 						//g.stroke();
 						
-						trace("game.BadEreaDrawPath");
+						trace("BadEreaDrawPath");
 						}
 						
 				}
 			}
-		game.boom=function(_x,_y,_w,_h){
-			for(var i = 0; i < game.badEreaCount; i++){
-				if(game.badErea[i].showTimes == 0){
-					game.badErea[i].x = _x;
-					game.badErea[i].y = _y;
-					game.badErea[i].sizeX = Math.ceil(_w/SP_W);
-					game.badErea[i].sizeY = Math.ceil(_h/SP_H);
-					game.badErea[i].showTimes = RANDOM(2,10);
-					game.badErea[i].bDrawed = false;
+		boom=function(_x,_y,_w,_h){
+			for(var i = 0; i < badEreaCount; i++){
+				if(badErea[i].showTimes == 0){
+					badErea[i].x = _x;
+					badErea[i].y = _y;
+					badErea[i].sizeX = Math.ceil(_w/SP_W);
+					badErea[i].sizeY = Math.ceil(_h/SP_H);
+					badErea[i].showTimes = RANDOM(2,10);
+					badErea[i].bDrawed = false;
 					//compute random path
-					var t = game.badErea[i].drawPath;
+					var t = badErea[i].drawPath;
 					var curX = 0;
 					var curY = 0;
 					var left = _x +10;
@@ -1232,48 +1279,48 @@
 					while(curX<limit){
 						curY = top + RANDOM(-10,10);
 						curX += RANDOM(1,10);
-						game.badErea[i].drawPath.push([curX,curY]);
+						badErea[i].drawPath.push([curX,curY]);
 						}
 					limit = bottom;
 					while(curY<limit){
 						curY +=RANDOM(1,10);
 						curX = right + RANDOM(-10,10);
-						game.badErea[i].drawPath.push([curX,curY]);
+						badErea[i].drawPath.push([curX,curY]);
 						}
 					limit = left;
 					while(curX>limit){
 						curY = bottom + RANDOM(-10,10);
 						curX -=RANDOM(1,10);
-						game.badErea[i].drawPath.push([curX,curY]);
+						badErea[i].drawPath.push([curX,curY]);
 						}
 					limit = top+10;
 					while(curY>limit){
 						curY -=RANDOM(1,10);
 						curX = left + RANDOM(1,10);
-						game.badErea[i].drawPath.push([curX,curY]);
+						badErea[i].drawPath.push([curX,curY]);
 						}
 					
-					game.BadEreaCompute();
+					BadEreaCompute();
 					return;
 					}
 				}
 		};
 		
-		game.laser=function(){
-			//trace("lasering:"+game.square);
-			game.buff = "showYSM";
-			var num = game.square;
+		laser=function(){
+			//trace("lasering:"+square);
+			buff = "showYSM";
+			var num = square;
 			for (var x = 0; x < SP_W_N; x++) {
 				for(var y=0;y < SP_H_N;y++){
-				if(game.dataCur[x][y]==num){
-					game.dataCur[x][y]=7;
-					game.buff = "waite";
+				if(dataCur[x][y]==num){
+					dataCur[x][y]=7;
+					buff = "waite";
 					var endx = UI_SP_X + x*SP_W+SP_W/2;
 					var endy = UI_SP_Y + (SP_H_N-1-y)*SP_H+SP_H/2;
-					game.reDraw();
-					game.event_laser(380,280,endx,endy);
+					reDraw();
+					event_laser(380,280,endx,endy);
 					TIMER(1300,1,function(){
-						game.buff = "laser";
+						buff = "laser";
 						});
 					return;
 					}
@@ -1281,13 +1328,13 @@
 			}
 			}
 		
-		game.getRaffleSameIconCountMax = function(){
+		getRaffleSameIconCountMax = function(){
 			var countAry = [];
 			for(var i = 0; i < UI_TIP_LEN;i++){
-				var cur = game.tipCur[i];
+				var cur = tipCur[i];
 				var curCount = 0;
 				for(var j = i; j < UI_TIP_LEN;j++){
-					if(cur == game.tipCur[j]){
+					if(cur == tipCur[j]){
 						curCount ++;
 						}
 					}
@@ -1304,24 +1351,24 @@
 			return {count:largeNum,idx:largeIdx};
 			}
 		
-		game.getRaffleSpecialIconCount = function(_icon){
+		getRaffleSpecialIconCount = function(_icon){
 			var count = 0;
 				for(var i = 0; i < UI_TIP_LEN;i++){
-					if(game.tipCur[i]==_icon){
+					if(tipCur[i]==_icon){
 						count++;
 						}
 					}
 			return count;
 			}
-		game.raffleCompute = function(){
+		raffleCompute = function(){
 			//计算御神木数量
-			var info = game.getRaffleSameIconCountMax();
+			var info = getRaffleSameIconCountMax();
 				var bNext = true;
-				var ysmCount = game.getRaffleSpecialIconCount(7);
-				var childCount = game.getRaffleSpecialIconCount(8);
-				var blackCount = game.getRaffleSpecialIconCount(1);
+				var ysmCount = getRaffleSpecialIconCount(7);
+				var childCount = getRaffleSpecialIconCount(8);
+				var blackCount = getRaffleSpecialIconCount(1);
 					if(ysmCount==3){
-						game.dataIconFly();
+						dataIconFly();
 						TxtDlg.show([{text:"that's power!",type:"right"}],function(){});
 						trace("启用超级炸弹");
 						bNext = false;
@@ -1330,21 +1377,21 @@
 						g_bWTF=true;
 						trace("启用保护方块");
 						TxtDlg.show([{text:"奥义启用！",type:"right"}],function(){});
-						game.buff = "showYSM";
+						buff = "showYSM";
 						bNext = false;
 					}
 					if(ysmCount==1){			
 						if(blackCount >=1&&bNext){
-							if(game.score>500){
-								game.score -= 500;
+							if(score>500){
+								score -= 500;
 								}
 								else
 									{
-									game.score = 0;
+									score = 0;
 									}
 							TxtDlg.show([{text:"扣500分！",type:"right"}],function(){});
 							trace("扣500");
-							game.buff = "showYSM";
+							buff = "showYSM";
 							bNext = false;
 							}
 						}
@@ -1353,24 +1400,24 @@
 					g_spLen = RANDOM(1,3);
 					trace("下落方块长度改变1-2");
 					TxtDlg.show([{text:"吼～！",type:"left"}],function(){});
-					game.longSpTimes = 10;
-					game.buff = "showYSM";
+					longSpTimes = 10;
+					buff = "showYSM";
 					bNext = false;
 					
 					}
 				if(childCount ==2&&bNext){
-					game.spSpeed += 5;
+					spSpeed += 5;
 					trace("下落速度增加");
 					TxtDlg.show([{text:"下落速度增加！",type:"left"}],function(){});
-					game.buff = "showYSM";
+					buff = "showYSM";
 					bNext = false;
 					}
 				if(childCount ==1&&bNext){
 					g_spLen = RANDOM(4,7);
 					trace("下落方块长度改变4，6");
 					TxtDlg.show([{text:"啊！！！",type:"left"}],function(){});
-					game.longSpTimes = 1;
-					game.buff = "showYSM";
+					longSpTimes = 1;
+					buff = "showYSM";
 					bNext = false;
 					}
 					
@@ -1380,124 +1427,134 @@
 					var y = RANDOM(0,230);
 					var w = RANDOM(80,250);
 					var h = RANDOM(80,200);
-					game.BadEreaDrawBoom(x,y,w,h);
+					BadEreaDrawBoom(x,y,w,h);
 					bNext = false;
 					trace("炸毁区域");
 					TxtDlg.show([{text:"fuck you!",type:"left"}],function(){});
 				}
 				if(blackCount==2&&bNext){
-					game.event_fadeDark();
+					event_fadeDark();
 					trace("黑屏");
-					game.buff = "showYSM";
+					buff = "showYSM";
 					TxtDlg.show([{text:"the deep dark fantasy♂",type:"left"}],function(){});
 					bNext = false;
 					}
 				if(blackCount==1&&info.count<2&&bNext){
-					game.event_darkAndLight();
+					event_darkAndLight();
 					trace("半黑屏");
 					TxtDlg.show([{text:"状态异常!",type:"left"}],function(){});
 					bNext = false;
-					game.buff = "showYSM";
+					buff = "showYSM";
 					}
 				if(blackCount==1&&info.count>1&&bNext){
-					game.event_controlChange();
+					event_controlChange();
 					trace("操作反转");
 					bNext = false;
 					TxtDlg.show([{text:"boy next door♂",type:"left"}],function(){});
-					game.buff = "showYSM";
+					buff = "showYSM";
 					}
 				
 				//计算普通数量
 				if(blackCount==0&&info.count==3&&bNext){
-					game.score += 1000;
+					score += 1000;
 					bNext = false;
 					trace("加1000");
 					TxtDlg.show([{text:"加1000分！吼～",type:"left"}],function(){});
-					game.buff = "showYSM";
+					buff = "showYSM";
 				}
 				if(blackCount==0&&info.count==2&&bNext){
-					game.score += 100;
+					score += 100;
 					trace("加100");
 					TxtDlg.show([{text:"加100分，恭喜！",type:"left"}],function(){});
 					bNext = false;
-					game.buff = "showYSM";
+					buff = "showYSM";
 				}
 				if(bNext){
 				trace("谢谢惠顾");
 				TxtDlg.show([{text:"感恩之心",type:"left"}],function(){});
 				bNext = false;
-				game.buff = "showYSM";
+				buff = "showYSM";
 				}
 				for(var i = 0; i < g_spLen; i++){
-					game.tipCur[i] = RANDOM(1,g_spRandomMax);
+					tipCur[i] = RANDOM(1,g_spRandomMax);
 				}
-				game.raffleLock = false;	
+				raffleLock = false;	
 			}
 		
-		game.event_raffle = function(){
-			if(typeof(game.raffleLock)== "undefined"){
-				game.raffleLock = false;
+		event_raffle = function(){
+			if(typeof(raffleLock)== "undefined"){
+				raffleLock = false;
 				}
-			if(game.raffleLock){return;}
+			if(raffleLock){return;}
 			TxtDlg.show([{text:"是时候来鉴定一波血统了！",type:"left"}],function(){});
-			game.raffleLock = true;
-			game.buff = "raffle";
+			raffleLock = true;
+			buff = "raffle";
 			TIMER(100,20,function(){
 				for(var i = 0; i < UI_TIP_LEN; i++){
-					game.tipCur[i] = RANDOM(1,9);
+					tipCur[i] = RANDOM(1,9);
 					}
-					game.reDrawTip();
+					reDrawTip();
 				});
-			TIMER(3000,1,game.raffleCompute);
+			TIMER(3000,1,raffleCompute);
 		}
 		
-		game.keyTriF=function(key){
-			//trace("key press:"+key);
+		keyTriF=function(key){
+			trace("key press:"+key);
 			switch (key) {
 				case 119:
-				(game.controlF[2])();
+				(controlF[2])();
 				break;
 				case 97:
-				(game.controlF[0])();
+				(controlF[0])();
 				break;
 				case 100:
-				(game.controlF[1])();
+				(controlF[1])();
 				break;
 				case 115:
-				(game.controlF[3])();
+				(controlF[3])();
+				break;
+				case 113:
+				if(g_showType != "full"){
+					g_showType = "full"
+					g_needChangeCanvas = true;
+					}
+					else{
+						g_showType = "native"
+						g_needChangeCanvas = true;
+						}
 				break;
 				default:
 				break;
 			}
 		};
 	
-	game.event_laser_draw = function(){
+	event_laser_draw = function(){
 		
 		
-			game.l.path=[];
+			l.path=[];
 			var r = 50;
-			var num = game.l.angle
-			while(num < 360+game.l.angle){
+			var num = l.angle
+			while(num < 360+l.angle){
 				var tnum = num;
 				if(tnum > 360){
 					tnum -=360;
 					}
 				var a = Math.sin( tnum*Math.PI/180 ) * r;
 				var b = Math.cos( tnum*Math.PI/180) * r;
-				game.l.path.push([game.l.EX+a,game.l.EY+b]);
+				l.path.push([l.EX+a,l.EY+b]);
 				num += 18;
 				}
-			var g = game.laserCanvas.graphics;
+			var g = laserCanvas.graphics;
 			g.clear();
 			//g.fillStyle = "rgba(182,243,230,0)";
 			
 			g.beginPath();
 			
-			g.moveTo(game.l.EX,game.l.EY);	
-			for(var i = 0;i < game.l.path.length-1;i+=2){
-				g.lineTo(game.l.path[i][0],game.l.path[i][1]);
-				g.lineTo(game.l.path[i+1][0],game.l.path[i+1][1]);
-				g.lineTo(game.l.EX,game.l.EY);
+			g.moveTo(l.EX,l.EY);	
+			for(var i = 0;i < l.path.length-1;i+=2){
+				g.lineTo(l.path[i][0],l.path[i][1]);
+				g.lineTo(l.path[i+1][0],l.path[i+1][1]);
+				g.lineTo(l.EX,l.EY);
 				}
 			g.closePath();
 			g.fillStyle('rgba(171,239,254,0.5)');
@@ -1511,57 +1568,57 @@
 			//82,231,235
 			ctx.strokeStyle="rgb(171,239,254)";
 			ctx.lineWidth=4;
-			ctx.moveTo(game.l.SX+game.l.r,game.l.SY+game.l.r);
-			ctx.lineTo(game.l.EX-10+game.l.r2,game.l.EY-10+game.l.r2);
+			ctx.moveTo(l.SX+l.r,l.SY+l.r);
+			ctx.lineTo(l.EX-10+l.r2,l.EY-10+l.r2);
 			ctx.stroke();
 			
 			
 				
-			var radgrad1 = ctx.createRadialGradient(game.l.SX+game.l.r,game.l.SY+game.l.r,5,game.l.SX+game.l.r,game.l.SY+game.l.r,game.l.r+10);
+			var radgrad1 = ctx.createRadialGradient(l.SX+l.r,l.SY+l.r,5,l.SX+l.r,l.SY+l.r,l.r+10);
       radgrad1.addColorStop(0, '#52E7EB');
-      radgrad1.addColorStop(game.l.coreScal, '#BBFFFF');
+      radgrad1.addColorStop(l.coreScal, '#BBFFFF');
       radgrad1.addColorStop(1, 'rgba(171,239,254,0)');
 			ctx.fillStyle = radgrad1;
-			ctx.fillRect(game.l.SX-game.l.r,game.l.SY-game.l.r,game.l.SX+game.l.r,game.l.SY+game.l.r);
+			ctx.fillRect(l.SX-l.r,l.SY-l.r,l.SX+l.r,l.SY+l.r);
 			
-			var radgrad2 = ctx.createRadialGradient(game.l.EX-10+game.l.r2,game.l.EY-10+game.l.r2,5,game.l.EX-10+game.l.r2,game.l.EY-10+game.l.r2,15);
+			var radgrad2 = ctx.createRadialGradient(l.EX-10+l.r2,l.EY-10+l.r2,5,l.EX-10+l.r2,l.EY-10+l.r2,15);
       radgrad2.addColorStop(0, '#52E7EB');
-      radgrad2.addColorStop(game.l.coreSca2, '#BBFFFF');
+      radgrad2.addColorStop(l.coreSca2, '#BBFFFF');
       radgrad2.addColorStop(1, 'rgba(171,239,254,0)');
 			ctx.fillStyle = radgrad2;
-			ctx.fillRect(game.l.EX-10-game.l.r2,game.l.EY-10-game.l.r2,game.l.EX-10+game.l.r2,game.l.EY-10+game.l.r2);
+			ctx.fillRect(l.EX-10-l.r2,l.EY-10-l.r2,l.EX-10+l.r2,l.EY-10+l.r2);
 			
 			});
 		
 		}
 	
-	game.event_bad_end = function(){
-		game.buff = "waite"
-		game.mainCanvas.removeChild(game.controlCanvas);
-		game.badendSps = [];
-		game.endBkCanvas.x = UI_VAN_X;
-		game.endBkCanvas.y = UI_VAN_Y;
+	event_bad_end = function(){
+		buff = "waite"
+		mainCanvas.removeChild(controlCanvas);
+		badendSps = [];
+		endBkCanvas.x = UI_VAN_X;
+		endBkCanvas.y = UI_VAN_Y;
 		
-		game.breakX = 9;
-		game.breakY = 17;
-		game.b_breakAll = false;
+		breakX = 9;
+		breakY = 17;
+		b_breakAll = false;
 
 		var w = 10;
 		var h = 18;
 		for(var cx = 0; cx<w; cx++){
-			game.badendSps[cx]=[];
+			badendSps[cx]=[];
 			for(var cy = 0; cy<h; cy++){
 				var bmpData = new LBitmapData(res["p_van"]);
-				game.badendSps[cx][cy] = new LShape();
-				var g = game.badendSps[cx][cy].graphics;
+				badendSps[cx][cy] = new LShape();
+				var g = badendSps[cx][cy].graphics;
 				g.clear();
 				g.beginPath();
 				g.drawRect(0,"#000000",[cx*12,cy*12,12,12]);
 				g.beginBitmapFill(bmpData);
-				game.endBkCanvas.addChild(game.badendSps[cx][cy]);
+				endBkCanvas.addChild(badendSps[cx][cy]);
 				}
 			}
-			game.personCanvas.removeChild(game.bkVan);
+			personCanvas.removeChild(bkVan);
 			
 			
 			var txtData = [{text:"....",type:"left"}
@@ -1596,14 +1653,14 @@
 					,{text:"如你所见，我要去那儿了",type:"left"}
 					,{text:"那儿是哪儿啊？身体不要消失啊",type:"right"}
 					,{text:"我有话对你说...",type:"left"}
-					,{text:"...我...我...惜...",type:"left"}
+					,{text:"...我...我...对你...",type:"left"}
 					,{text:".......",type:"left"}
 					,{text:"你有什么话想说啊？说啊！",type:"right"}
 					,{text:"...我......",type:"left"}
 					];
 					TxtDlg.show(txtData,function(){
 					var bmpData = new LBitmapData(res["p_shilei_sad"]);
-					game.bkShilei.bitmapData = bmpData;
+					bkShilei.bitmapData = bmpData;
 					
 					var txtData = [{text:"van少!!!",type:"right"}
 					,{text:"你别走！！",type:"right"}
@@ -1619,38 +1676,38 @@
 					];
 					TxtDlg.show(txtData,function(){
 						
-						LTweenLite.to(game.bkShilei,2,{x:UI_VAN_X,y:UI_VAN_Y,alpha:0,delay:0,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+						LTweenLite.to(bkShilei,2,{x:UI_VAN_X,y:UI_VAN_Y,alpha:0,delay:0,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 								//game over
 								}});
 						
 						});
-					game.b_breakAll = true;
-					if(game.breakY<=5){
-						game.breakY = 5;
+					b_breakAll = true;
+					if(breakY<=5){
+						breakY = 5;
 						}
-					game.breakVan();
+					breakVan();
 					});
-				game.breakVan();
+				breakVan();
 				});
 			
-			game.breakVan = function(){
+			breakVan = function(){
 				for(var nextIdx = 0; nextIdx < 10;nextIdx++){
-					game.breakX--;
-					if(game.breakX<0){
-							game.breakX = 9;
-							game.breakY -= 1;
+					breakX--;
+					if(breakX<0){
+							breakX = 9;
+							breakY -= 1;
 							}
-					if(game.breakY < 0||game.breakX<0){
+					if(breakY < 0||breakX<0){
 						return;
 						}
-					if(game.breakY > 5||game.b_breakAll){
+					if(breakY > 5||b_breakAll){
 						if(nextIdx == 0){
-							LTweenLite.to(game.badendSps[game.breakX][game.breakY],2,{x:0,y:50,alpha:0,delay:nextIdx*0.1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
-								game.breakVan();
+							LTweenLite.to(badendSps[breakX][breakY],2,{x:0,y:50,alpha:0,delay:nextIdx*0.1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+								breakVan();
 								}});
 							}
 						else{
-							LTweenLite.to(game.badendSps[game.breakX][game.breakY],2,{x:0,y:50,alpha:0,delay:nextIdx*0.1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+							LTweenLite.to(badendSps[breakX][breakY],2,{x:0,y:50,alpha:0,delay:nextIdx*0.1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 							
 							}});
 							}
@@ -1663,21 +1720,21 @@
 
 			
 			}
-		game.breakLast = function(){
-			if(game.breakY >= 0){
-					game.breakX = game.breakX-1;
-					if(game.breakX < 0){
-						game.breakX = 9;
-						game.breakY-= 1;
+		breakLast = function(){
+			if(breakY >= 0){
+					breakX = breakX-1;
+					if(breakX < 0){
+						breakX = 9;
+						breakY-= 1;
 						}
-						LTweenLite.to(game.badendSps[game.breakX][game.breakY],2,{x:0,y:50,alpha:0,delay:0,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
-						game.breakLast();
+						LTweenLite.to(badendSps[breakX][breakY],2,{x:0,y:50,alpha:0,delay:0,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+						breakLast();
 						}});
 				}
 			
 			}
 		
-		game.showNextTalk = function(){
+		showNextTalk = function(){
 			
 			
 			}
@@ -1686,12 +1743,12 @@
 			
 		}
 	
-	game.event_good_end = function(){
-		game.buff = "waite"
-		game.mainCanvas.removeChild(game.controlCanvas);
+	event_good_end = function(){
+		buff = "waite"
+		mainCanvas.removeChild(controlCanvas);
 		var bmpData = new LBitmapData(res["bk_img_mogeko"]);
 		var bmp = new LBitmap(bmpData);
-		game.endBkCanvas.addChild(bmp);
+		endBkCanvas.addChild(bmp);
 		var txtData = [{text:"......",type:"left"}
 				,{text:"......",type:"right"}
 				,{text:"其实...",type:"right"}
@@ -1717,15 +1774,15 @@
 				,{text:"van！",type:"right"}
 				];
 				TxtDlg.show(txtData,function(){
-					LTweenLite.to(game.bkVan,2,{x:UI_VAN_X+150,y:UI_VAN_Y,delay:1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+					LTweenLite.to(bkVan,2,{x:UI_VAN_X+150,y:UI_VAN_Y,delay:1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 					
 
 				
 					}});
 					
-					LTweenLite.to(game.bkShilei,2,{x:UI_SHILEI_X-150,y:UI_VAN_Y,delay:1,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+					LTweenLite.to(bkShilei,2,{x:UI_SHILEI_X-150,y:UI_VAN_Y,delay:1,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 					
-					game.effect_mutiHeart_On(0,350,game.personCanvas)
+					effect_mutiHeart_On(0,350,personCanvas)
 				
 				
 				}});
@@ -1737,57 +1794,57 @@
 	
 	
 	
-	game.event_laser = function(_x,_y,_endx,_endy) //need 1500
+	event_laser = function(_x,_y,_endx,_endy) //need 1500
 	{
-		if(typeof(game.b_laser) == "undefined"){
-			game.b_laser = true;
+		if(typeof(b_laser) == "undefined"){
+			b_laser = true;
 			}
-		if(!game.b_laser){return;}
+		if(!b_laser){return;}
 		TxtDlg.show([{text:"oh~my萧儿♂",type:"right"}],function(){});
-		game.b_laser = false;
-		game.l = {};
-		game.l.SX = _x;
-		game.l.SY= _y;
-		game.l.EX = _endx;
-		game.l.EY = _endy;
-		game.l.r = 40;
-		game.l.r2 = 10;
-		game.l.coreScal = 0.6;
-		game.l.coreSca2 = 0.1;
-		game.l.linW = 6;
-		game.l.linAlpha = 0.6;
-		game.l.angle = 0;
-		game.l.path = [];
-		game.laserCanvas = new LSprite();
-		game.effectCanvas.addChild(game.laserCanvas);
-		var g = game.laserCanvas.graphics;
+		b_laser = false;
+		l = {};
+		l.SX = _x;
+		l.SY= _y;
+		l.EX = _endx;
+		l.EY = _endy;
+		l.r = 40;
+		l.r2 = 10;
+		l.coreScal = 0.6;
+		l.coreSca2 = 0.1;
+		l.linW = 6;
+		l.linAlpha = 0.6;
+		l.angle = 0;
+		l.path = [];
+		laserCanvas = new LSprite();
+		effectCanvas.addChild(laserCanvas);
+		var g = laserCanvas.graphics;
 		g.clear();
-		game.event_laser_draw();
+		event_laser_draw();
 		
 		
 		
 		TIMER(100,12,function(){
-			game.l.coreScal -=0.025;
-			game.l.coreSca2 += 0.05;
-			game.l.angle += 17;
-			if(game.l.linW > 2){
-				game.l.linW -=1
-				game.l.linAlpha +=0.1;
+			l.coreScal -=0.025;
+			l.coreSca2 += 0.05;
+			l.angle += 17;
+			if(l.linW > 2){
+				l.linW -=1
+				l.linAlpha +=0.1;
 				} 
-			game.event_laser_draw();
+			event_laser_draw();
 			});
 		
 		TIMER(1300,1,function(){
-			var g = game.laserCanvas.graphics;
+			var g = laserCanvas.graphics;
 			g.clear();
-			game.effectCanvas.removeChild(game.laserCanvas);
-			game.b_laser = true;
+			effectCanvas.removeChild(laserCanvas);
+			b_laser = true;
 			});
 	}
 	
 	
 	
-	game.drawHeart = function(_x,_y,_w,_fillColor,_parent)
+	drawHeart = function(_x,_y,_w,_fillColor,_parent)
 	{
 		var _h = Math.round(_w*1.6);
 		var _h2 = Math.round(_w*0.6);
@@ -1809,129 +1866,129 @@
 		});
 	}
 	
-	game._effect_mutiHeart_Init_ = function(i){
-		game.mutiData[i].speed =  RANDOM(2,6);
-		game.mutiData[i].x = RANDOM(50,450);
-		game.mutiData[i].speedX = RANDOM(-2,3);;
-		game.mutiData[i].y = 0;
-		game.mutiData[i].w = 12;
-		game.mutiData[i].alpha = 1;
-		game.mutiData[i].color = "rgba(246,0,0,"+ game.mutiData[i].alpha +")";
+	_effect_mutiHeart_Init_ = function(i){
+		mutiData[i].speed =  RANDOM(2,6);
+		mutiData[i].x = RANDOM(50,450);
+		mutiData[i].speedX = RANDOM(-2,3);;
+		mutiData[i].y = 0;
+		mutiData[i].w = 12;
+		mutiData[i].alpha = 1;
+		mutiData[i].color = "rgba(246,0,0,"+ mutiData[i].alpha +")";
 		}
-	game.effect_mutiHeart_On = function(_x,_y,_parent){
-		if(typeof(game.b_mutiHeart) == "undefined"){
-			game.b_mutiHeart = false;
-			game.mutiSp = new LSprite();
+	effect_mutiHeart_On = function(_x,_y,_parent){
+		if(typeof(b_mutiHeart) == "undefined"){
+			b_mutiHeart = false;
+			mutiSp = new LSprite();
 			TIMER(50,MAX_VALUE,function(){
-				if(!game.b_mutiHeart){return;}
-				game.mutiSp.graphics.clear();
-				for(var i = 0; i<game.mutiCount; i++){
-					game.mutiData[i].x += game.mutiData[i].speedX;
-					game.mutiData[i].y -= 1 * game.mutiData[i].speed;
-					game.mutiData[i].w += 0.2;
-					game.mutiData[i].alpha -= 0.002 * game.mutiData[i].speed;
-					game.mutiData[i].color = "rgba(246,0,0,"+ game.mutiData[i].alpha +")";
+				if(!b_mutiHeart){return;}
+				mutiSp.graphics.clear();
+				for(var i = 0; i<mutiCount; i++){
+					mutiData[i].x += mutiData[i].speedX;
+					mutiData[i].y -= 1 * mutiData[i].speed;
+					mutiData[i].w += 0.2;
+					mutiData[i].alpha -= 0.002 * mutiData[i].speed;
+					mutiData[i].color = "rgba(246,0,0,"+ mutiData[i].alpha +")";
 					
 					var bInit=false;
-					if(game.mutiData[i].x>500||game.mutiData[i].x<0){bInit=true;}
-					if(game.mutiData[i].y<-350){bInit=true;}
-					if(game.mutiData[i].w>200){bInit=true;}
-					if(game.mutiData[i].alpha<0.1){bInit=true;}
+					if(mutiData[i].x>500||mutiData[i].x<0){bInit=true;}
+					if(mutiData[i].y<-350){bInit=true;}
+					if(mutiData[i].w>200){bInit=true;}
+					if(mutiData[i].alpha<0.1){bInit=true;}
 					if(bInit){
-						game._effect_mutiHeart_Init_(i);
+						_effect_mutiHeart_Init_(i);
 						}
-					game.drawHeart(game.mutiData[i].x,game.mutiData[i].y,game.mutiData[i].w,game.mutiData[i].color,game.mutiSp);
+					drawHeart(mutiData[i].x,mutiData[i].y,mutiData[i].w,mutiData[i].color,mutiSp);
 					}
 				});
 			}
-		game.mutiSp.x = _x;
-		game.mutiSp.y = _y;
-		_parent.addChild(game.mutiSp);
-		game.mutiHeartCanvas = new LSprite();
-		game.mutiHeartCanvas.x = _x;
-		game.mutiHeartCanvas.y = _y;
-		_parent.addChild(game.mutiHeartCanvas);
-		game.mutiCount = 20;
-		game.mutiData = [];
-		for(var i = 0; i<game.mutiCount; i++){
-			game.mutiData[i] = {};
-			game._effect_mutiHeart_Init_(i);
+		mutiSp.x = _x;
+		mutiSp.y = _y;
+		_parent.addChild(mutiSp);
+		mutiHeartCanvas = new LSprite();
+		mutiHeartCanvas.x = _x;
+		mutiHeartCanvas.y = _y;
+		_parent.addChild(mutiHeartCanvas);
+		mutiCount = 20;
+		mutiData = [];
+		for(var i = 0; i<mutiCount; i++){
+			mutiData[i] = {};
+			_effect_mutiHeart_Init_(i);
 			}
-		game.b_mutiHeart = true;
+		b_mutiHeart = true;
 		}
-	game.effect_mutiHeart_Off = function(){
-		if(typeof(game.b_mutiHeart) == "undefined"){
+	effect_mutiHeart_Off = function(){
+		if(typeof(b_mutiHeart) == "undefined"){
 			return;
 			}
-		game.b_mutiHeart = false;
+		b_mutiHeart = false;
 		}
 	
 	
 	
-	game.event_fadeDark = function(){	
-		if(typeof(game.b_fadeDark) == "undefined"){
-			game.b_fadeDark = true;
+	event_fadeDark = function(){	
+		if(typeof(b_fadeDark) == "undefined"){
+			b_fadeDark = true;
 			}
-		if(!game.b_fadeDark){return;}
-		game.fadeDarkCanvas = new LSprite();
-		game.effectCanvas.addChild(game.fadeDarkCanvas);
-		game.fadeDarkCanvas.alpha = 0.05;
-		var g = game.fadeDarkCanvas.graphics;
+		if(!b_fadeDark){return;}
+		fadeDarkCanvas = new LSprite();
+		effectCanvas.addChild(fadeDarkCanvas);
+		fadeDarkCanvas.alpha = 0.05;
+		var g = fadeDarkCanvas.graphics;
 		g.clear();
 		g.drawRect(1,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H],true,"#000000");
-		game.b_fadeDark = false;
+		b_fadeDark = false;
 		TIMER(100,10,function(){
-			game.fadeDarkCanvas.alpha += 0.1;
+			fadeDarkCanvas.alpha += 0.1;
 			});
 		TIMER(5000,1,function(){
-			game.effectCanvas.removeChild(game.fadeDarkCanvas);
-			game.b_fadeDark = true;
+			effectCanvas.removeChild(fadeDarkCanvas);
+			b_fadeDark = true;
 			});
 		trace("event_fadeDark");
 		};
 	
-	game.event_darkAndLight = function(){
-		if(typeof(game.b_darkAndLight) == "undefined"){
-			game.b_darkAndLight = true;
+	event_darkAndLight = function(){
+		if(typeof(b_darkAndLight) == "undefined"){
+			b_darkAndLight = true;
 			}
-		if(!game.b_darkAndLight){return;}
-		game.darkAndLightCanvas = new LSprite();
-		game.effectCanvas.addChild(game.darkAndLightCanvas);	
-		game.tempSpCanvas = new LSprite();
-		game.tempSpCanvas.x = UI_SP_X;
-		game.tempSpCanvas.y = UI_SP_Y;
-		game.darkAndLightCanvas.addChild(game.tempSpCanvas);
-		game.tempSpCanvas.addChild(game.spCtrlCanvas);
-		var g = game.darkAndLightCanvas.graphics;
+		if(!b_darkAndLight){return;}
+		darkAndLightCanvas = new LSprite();
+		effectCanvas.addChild(darkAndLightCanvas);	
+		tempSpCanvas = new LSprite();
+		tempSpCanvas.x = UI_SP_X;
+		tempSpCanvas.y = UI_SP_Y;
+		darkAndLightCanvas.addChild(tempSpCanvas);
+		tempSpCanvas.addChild(spCtrlCanvas);
+		var g = darkAndLightCanvas.graphics;
 		g.clear();
 		g.drawRect(1,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H],true,"#000000");
 		
-		game.b_darkAndLight = false;
+		b_darkAndLight = false;
 		TIMER(5000,1,function(){
-			game.spCanvas.addChild(game.spCtrlCanvas);
-			game.spCanvas.addChild(game.stencilCanvas);
-			game.darkAndLightCanvas.removeChild(game.tempSpCanvas);
-			game.effectCanvas.removeChild(game.darkAndLightCanvas);
-			game.b_darkAndLight = true;
+			spCanvas.addChild(spCtrlCanvas);
+			spCanvas.addChild(stencilCanvas);
+			darkAndLightCanvas.removeChild(tempSpCanvas);
+			effectCanvas.removeChild(darkAndLightCanvas);
+			b_darkAndLight = true;
 			});
 		}
-	game.event_controlChange = function(){
-		if(typeof(game.b_controlChange) == "undefined"){
-			game.b_controlChange = true;
+	event_controlChange = function(){
+		if(typeof(b_controlChange) == "undefined"){
+			b_controlChange = true;
 			}
-		if(!game.b_controlChange){return;}
-		game.b_controlChange = false;
-		game.controlF[0] = game.spRight ;
-		game.controlF[1] = game.spLeft;
-		game.controlF[2] = game.spOver;
-		game.controlF[3] = game.spChang;
+		if(!b_controlChange){return;}
+		b_controlChange = false;
+		controlF[0] = spRight ;
+		controlF[1] = spLeft;
+		controlF[2] = spOver;
+		controlF[3] = spChang;
 		
 		TIMER(10000,1,function(){
-			game.controlF[0] = game.spLeft;
-			game.controlF[1] = game.spRight;
-			game.controlF[2] = game.spChang;
-			game.controlF[3] = game.spOver;
-			game.b_controlChange = true;
+			controlF[0] = spLeft;
+			controlF[1] = spRight;
+			controlF[2] = spChang;
+			controlF[3] = spOver;
+			b_controlChange = true;
 			});
 		
 			
@@ -1948,7 +2005,6 @@
 		var url = "./s_bgm_up.";
    	soundRes.load(url+"mp3,"+url+"ogg,"+url+"wav");
     soundRes.addEventListener(LEvent.COMPLETE,loadOver);
-		soundRes.play();
 		
 		LLoadManage.load(
 		DATA_RAW,
@@ -1959,7 +2015,7 @@
 		{
 			res = result;
 
-			game.init();
+			init();
 			backLayer.removeChild(loadingLayer);
 			loadingLayer = null;
 			
