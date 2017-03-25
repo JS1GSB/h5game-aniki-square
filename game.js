@@ -80,7 +80,7 @@
 	var STAGE_INFO = [
 	{stage:0,stageScore:0,speed:2,addScore:1,sp:4,end:0}
 	,{stage:1,stageScore:50,speed:4,addScore:2,sp:4,end:0}
-	,{stage:2,stageScore:400,speed:6,addScore:3,sp:5,end:1}
+	,{stage:2,stageScore:400,speed:6,addScore:4,sp:5,end:1}
 	,{stage:3,stageScore:1000,speed:10,addScore:7,sp:6,end:1}
 	,{stage:4,stageScore:2000,speed:10,addScore:11,sp:7,end:2}
 	,{stage:5,stageScore:4000,speed:15,addScore:15,sp:7,end:2}
@@ -527,16 +527,17 @@
 		personCanvas.addChild(bkShilei);
 		
 ////		test event coude be here
-//		VanOpaiBtn = new SButton(50,110,"0000000",uiCanvas,function(){
-//			event_good_end();
-//			//event_bad_end();
-//
+//		VanOpaiBtn = new SButton(50,60,"xxxxxx",uiCanvas,function(){
+//			event_fadeDark();
 //			});
 		
 		raffelCanvas = new LSprite();
 		uiCanvas.addChild(raffelCanvas);
 		raffelCanvas.graphics.drawRoundRect(2,"rgba(182,243,230,0)",[0,100,150,350,5],false);
 		raffelCanvas.addEventListener(LMouseEvent.MOUSE_UP,function(){
+			if(g_buff != "spDown"){//非下落状态不能抽奖
+				return;
+				}
 			if(g_raffle_count>0){ //抽奖事件
 				event_raffle();
 				return;
@@ -768,7 +769,7 @@
 							dataTemp[x][y]=9;
 							dataTemp[x][y+1]=9;
 							dataTemp[x][y+2]=9;
-							score_time += 2;
+							score_time += 4;
 							g_buff="showYSM";
 						}
 						
@@ -778,7 +779,7 @@
 							dataTemp[x][y]=9;
 							dataTemp[x+1][y]=9;
 							dataTemp[x+2][y]=9;
-							score_time += 2;
+							score_time += 4;
 							g_buff="showYSM";
 						}
 					}
@@ -787,7 +788,7 @@
 							dataTemp[x][y]=9;
 							dataTemp[x+1][y+1]=9;
 							dataTemp[x+2][y+2]=9;
-							score_time += 2;
+							score_time += 4;
 							g_buff="showYSM";
 						}
 					}
@@ -796,7 +797,7 @@
 							dataTemp[x][y]=9;
 							dataTemp[x-1][y+1]=9;
 							dataTemp[x-2][y+2]=9;
-							score_time += 2;
+							score_time += 4;
 							g_buff="showYSM";
 						}
 					}
@@ -807,7 +808,7 @@
 	
 		if(g_buff =="showYSM"){
 			g_buff = "waite";
-			g_lineAdd = g_lineAdd * (score_time-2)/10; 
+			g_lineAdd = g_lineAdd * (score_time-4)/10; 
 			addYSM();
 			reDraw();
 			}
@@ -1012,7 +1013,7 @@
 		g_spSpeedLock = true;
 		g_spSpeedPre = g_spSpeed;
 		g_spSpeed = SP_DOWN_SPEED_QUICK;
-		TIMER(500,1,function(){
+		TIMER(800,1,function(){
 			if(g_spSpeedLock){
 					g_spSpeed = g_spSpeedPre;	;
 					g_spSpeedLock = false;
@@ -1368,7 +1369,7 @@
 						curX -=RANDOM(1,10);
 						badErea[i].drawPath.push([curX,curY]);
 						}
-					limit = top+10;
+					limit = top;
 					while(curY>limit){
 						curY -=RANDOM(1,10);
 						curX = left + RANDOM(1,10);
@@ -1925,10 +1926,10 @@
 		g.clear();
 		g.drawRect(1,"#000000",[0,0,UI_GAME_W,UI_GAME_H],true,"#000000");
 		b_fadeDark = false;
-		TIMER(100,10,function(){
+		TIMER(100,9,function(){
 			fadeDarkCanvas.alpha += 0.1;
 			});
-		TIMER(5000,1,function(){
+		TIMER(10000,1,function(){
 			effectCanvas.removeChild(fadeDarkCanvas);
 			b_fadeDark = true;
 			});
