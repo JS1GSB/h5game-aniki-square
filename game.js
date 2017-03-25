@@ -1,3 +1,5 @@
+//author:js1gsb
+//email:js1gsb@gmail.com
 //just for fun :)
 
 //resource data
@@ -35,12 +37,23 @@
 	var MAX_VALUE = 210000000;
 
 	var g_showType = "full";
-	var g_needChangeCanvas = true;
-	var loader;
-	var loadingLayer;
-	var res = {};
-	var soundRes;
-	var tempButtom;
+	var g_needChangeCanvas = true;//dirty data mark for change showType
+	var g_loadingLayer;
+	var g_res = {};
+	var g_bmpData = {};
+	var g_soundRes;
+	
+	var g_buff;//游戏状态
+	
+	var g_score = 0,g_scoreShow = 0;//游戏分数
+	var g_add_score = 1;//单个方块分数
+	var g_lineAdd = 1;//方块分数倍数
+	var g_spLen = 3;//ui显示下一个下落方块的数量『暂时设为固定的3』
+	var g_spRandomMax = 4; //随机方块数量
+	var g_endState = 0; //0普通 1 bad end 2 good end
+	var g_protectCount = 0;//秘籍？？
+	
+	var g_spSpeed,g_spSpeedPre,g_spSpeedLock,g_spSpeedApend; //下落方块速度控制
 
 	var SP_W = 30;
 	var SP_H = 30;
@@ -48,20 +61,12 @@
 	var SP_W_N = 6;
 	var SP_H_N = 10;
 	var GAME_SPEED = 100; //游戏主循环执行的时间间隔
-	var SP_DOWN_SPEED_LOW = 5;
-	var SP_DOWN_SPEED_QUICK = 30;
-	var ADD_SCORE_VAL = 1;
-	
+	var SP_DOWN_SPEED_QUICK = 30; //下落最大速度
 	var SP_MAX_LEN = 6;//控制下落方块最大数量
-	var g_spLen = 3;//ui显示下一个下落方块的数量『暂时设为固定的3』
-	var g_spRandomMax = 4; //随机方块数量
-	var g_endState = 0; //0普通 1 bad end 2 good end
-	var g_bWTF =false;//秘籍？？
-	
 	var UI_TIP_LEN = 3; //提示下一个的长度
 	
-	var UI_GAME_PIX_W = 500;
-	var UI_GAME_PIX_H = 350;
+	var UI_GAME_W = 500;
+	var UI_GAME_H = 350;
 	var UI_SP_X = 160;
 	var UI_SP_Y = 30;
 	var UI_SCORE_LEN = 4;
@@ -71,7 +76,19 @@
 	var UI_SHILEI_X = 360;
 	var UI_SHILEI_Y = 126;
 	
+	//game setup
+	var STAGE_INFO = [
+	{stage:0,stageScore:0,speed:2,addScore:1,sp:4,end:0}
+	,{stage:1,stageScore:50,speed:4,addScore:2,sp:4,end:0}
+	,{stage:2,stageScore:400,speed:6,addScore:3,sp:5,end:1}
+	,{stage:3,stageScore:1000,speed:10,addScore:7,sp:6,end:1}
+	,{stage:4,stageScore:2000,speed:10,addScore:11,sp:7,end:2}
+	,{stage:5,stageScore:4000,speed:15,addScore:15,sp:7,end:2}
+	,{stage:6,stageScore:6000,speed:21,addScore:20,sp:7,end:2}
+	];
 	
+	
+	var g_raffle_count = 0;
 	var GENG = [
 	{num:7,text:"真理阿虚送你一次抽奖机会"}
 	,{num:9,text:"笨蛋⑨送你一次抽奖机会"}
@@ -94,6 +111,96 @@
 	,{num:3000,text:"金发大小姐送你一次抽奖机会"}
 	];
 	
+	var VAN = 1, SILEI = 2;
+	
+	
+	var TXT_begin_1 = [
+		{text:"简单说一下...",type:SILEI}
+		,{text:"电脑可以用wsad操控，q键切换全屏",type:VAN}
+		,{text:"提示获得抽奖机会后点我抽奖",type:VAN}
+		,{text:"没有获得可以花100分购买机会",type:VAN}
+		,{text:"努力玩到高分可以有好结局...",type:SILEI}
+		,{text:"祝你玩得愉快...",type:SILEI}
+		];
+		
+	var TXT_normalEnd_1 = [{text:"这就死了？渣渣...",type:VAN}
+						,{text:"我觉得你有进步的空间",type:SILEI}
+						,{text:"那你加油咯！",type:VAN}
+						];
+	
+	var TXT_badEnd_1 = [{text:"....",type:VAN}
+				,{text:"咳...",type:VAN}
+				,{text:"van少，你怎么了？",type:SILEI}
+				,{text:"尸雷，你听我说...",type:VAN}
+				,{text:"...",type:SILEI}
+				,{text:"看来这情况无法再呆这儿了",type:VAN}
+				,{text:"我必须要去那个地方了",type:VAN}
+				,{text:"去了那个地方可能...",type:VAN}
+				,{text:"就再也回不来了...",type:VAN}
+				,{text:"可能这件有些突然...",type:VAN}
+				,{text:"走之前...尸雷...",type:VAN}
+				,{text:"......",type:SILEI}
+				,{text:"最近看你若有所思的样子",type:SILEI}
+				,{text:"你一直都在想这个事对吧？",type:SILEI}
+				,{text:"你是个说到做到的人",type:SILEI}
+				,{text:"现在我发现我讨厌这样的你",type:SILEI}
+				,{text:"你这样做你真的开心吗？",type:SILEI}
+				,{text:"明明好不容易才有了...",type:SILEI}
+				,{text:"和我在一起哪点不好吗？",type:SILEI}
+				,{text:"van少，你是个无情的人！",type:SILEI}
+				,{text:"你不会获得幸福的！",type:SILEI}
+				];
+	var TXT_badEnd_2 = [{text:".........",type:VAN}
+					,{text:"van...你...",type:SILEI}
+					,{text:"你的身体！要消失了！",type:SILEI}
+					,{text:"这是怎么了！快回答我！",type:SILEI}
+					,{text:"对不起...",type:VAN}
+					,{text:"说你的身体啊!!!",type:SILEI}
+					,{text:"如你所见，我要去那儿了",type:VAN}
+					,{text:"那儿是哪儿啊？身体不要消失啊",type:SILEI}
+					,{text:"我有话对你说...",type:VAN}
+					,{text:"...我...我...对你...",type:VAN}
+					,{text:".......",type:VAN}
+					,{text:"你有什么话想说啊？说啊！",type:SILEI}
+					,{text:"...我......",type:VAN}
+					];
+	var TXT_badEnd_3 = [{text:"van少!!!",type:SILEI}
+					,{text:"你别走！！",type:SILEI}
+					,{text:"van少！你能听见我说话吗？",type:SILEI}
+					,{text:"你把话说完啊！！",type:SILEI}
+					,{text:"你说话啊！！你是装听不到吗？",type:SILEI}
+					,{text:"你这个混蛋！！",type:SILEI}
+					,{text:"为什么不早告诉我！",type:SILEI}
+					,{text:"我有好多话来不及给你说",type:SILEI}
+					,{text:"van...",type:SILEI}
+					,{text:"van......",type:SILEI}
+					,{text:"我来找你了...",type:SILEI}
+					];
+	
+	var TXT_goodEnd_1 = [{text:"......",type:VAN}
+				,{text:"......",type:SILEI}
+				,{text:"其实...",type:SILEI}
+				,{text:"终于到了这种时刻..",type:VAN}
+				,{text:"尸雷！你听我说...",type:VAN}
+				,{text:"...",type:SILEI}
+				,{text:"我再也等不下去了...",type:VAN}
+				,{text:"第一次见到你时，",type:VAN}
+				,{text:"纯真无邪，快乐活泼...",type:VAN}
+				,{text:"现在你已经变得如此憔悴",type:VAN}
+				,{text:"这个世界太奇怪！",type:VAN}
+				,{text:"没有保护认真对待生活的人",type:VAN}
+				,{text:"现在你不用再担心什么了",type:VAN}
+				,{text:"即使对抗世界",type:VAN}
+				,{text:"我也要你幸福!",type:VAN}
+				,{text:"尸雷,我们在一起吧!",type:VAN}
+				,{text:"...",type:SILEI}
+				,{text:"van少，我答应你的请求！",type:SILEI}
+				,{text:"虽然我没什么大的能力",type:SILEI}
+				,{text:"倘若你遇到了困难",type:SILEI}
+				,{text:"我将全心全意支持你",type:SILEI}
+				,{text:"尸雷！",type:VAN}
+				,{text:"van！",type:SILEI}
+				];
 	
 }
 //some libs
@@ -123,7 +230,7 @@
 		txtField.text = _txt;
 		var len = txtField.getWidth();
 		sp.lineStyle = "#000000";
-		sp.drawRoundRect(2,"#000000",[_x,_y,len+10,25,5],true,"#666666");
+		sp.drawRoundRect(2,"rgba(182,243,230,0)",[_x,_y,len+10,25,5],false);
 		layer.addEventListener(LMouseEvent.MOUSE_UP,_f);
 		layer.alpha = 0.6;
 		txtField.alpha = 2;
@@ -172,7 +279,7 @@
 
 	TxtDlg = {};
 	TxtDlg._bInit = false;
-	TxtDlg.lastStrAry = new Array(" /"," -"," \\"," |");
+	TxtDlg.LAST_STR_ARY = new Array(" /"," -"," \\"," |");
 	TxtDlg._init = function(){
 		TxtDlg.lastStridx = 0;
 		TxtDlg.bShow = false;
@@ -192,7 +299,7 @@
 			}
 			else
 				{
-					TxtDlg.txt.text = TxtDlg.endTxt + TxtDlg.lastStrAry[TxtDlg.lastStridx];
+					TxtDlg.txt.text = TxtDlg.endTxt + TxtDlg.LAST_STR_ARY[TxtDlg.lastStridx];
 					TxtDlg.lastStridx ++;
 					if(TxtDlg.lastStridx > 3){
 						TxtDlg.lastStridx = 0;
@@ -225,11 +332,11 @@
 			var t = new LTextField();
 			t.text = _txt;
 			var len = t.getWidth();
-			if(_type == "left"){
+			if(_type == VAN){
 				TxtDlg.sp.x = UI_VAN_X + 120;
 				TxtDlg.sp.y = UI_VAN_Y;
 			}
-			if(_type == "right"){
+			if(_type == SILEI){
 				TxtDlg.sp.x = UI_SHILEI_X - len;
 				TxtDlg.sp.y = UI_SHILEI_Y;
 			}
@@ -237,13 +344,13 @@
 			var g = TxtDlg.sp.graphics;
 			g.drawRoundRect(2,"#000000",[0,0,len+20,25,5],true,"#999999");
 			g.beginPath();
-			if(_type == "left"){
+			if(_type == VAN){
 				g.moveTo(1,20);
 				g.lineTo(-10,35);
 				g.lineTo(10,24);
 				g.stroke();
 				}
-			if(_type == "right"){
+			if(_type == SILEI){
 				g.moveTo(len+20,20);
 				g.lineTo(len+31,35);
 				g.lineTo(len+9,24);
@@ -269,26 +376,22 @@
 		};
 
 		//over
-
 }
 
 
 
-
-	var game={};
-	buff="waite";
+	g_buff="waite";
 	bCreate = false;
 	create = function(){
 		par=gameLayer;
-		lineAdd=0;
 		mainCanvas=new LSprite();
 		par.addChild(mainCanvas);
 
 		
 		bkCanvas = new LSprite();
 		mainCanvas.addChild(bkCanvas);
-		mogekoData =  new LBitmapData(res["bk_img_mogeko"]);
-		bkBmpData = new LBitmapData(res["bk_img_ray"]);
+		mogekoData =  new LBitmapData(g_res["bk_img_mogeko"]);
+		bkBmpData = new LBitmapData(g_res["bk_img_ray"]);
 		var bmp = new LBitmap(bkBmpData);
 		bkCanvas.addChild(bmp);
 		
@@ -315,14 +418,12 @@
 				x = 26;
 				y += 40;
 				}
-			} 
+			}
 		spBkCanvas.cacheAsBitmap(true);
 		
 		spCanvas = new LSprite();
 		mainCanvas.addChild(spCanvas);
 		
-		
-
 		spCanvas = new LSprite();
 		mainCanvas.addChild(spCanvas);
 		spCanvas.x = UI_SP_X;
@@ -339,14 +440,12 @@
 		}
 		dataCur=[];
 		dataPre=[];	//double buffing for draw
-		dataTemp=[]; //compute buff
+		dataTemp=[]; //compute g_buff
 		for (var i = 0; i < SP_W_N; i++) {
 			dataCur[i]=[];
 			dataPre[i]=[];
 			dataTemp[i]=[];
 		}
-		
-		
 		
 		spCtrlCanvas = new LSprite();
 		spCanvas.addChild(spCtrlCanvas);
@@ -394,7 +493,7 @@
 		scoreIcon = [];
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
 			scoreIcon[i] = new LBitmap();
-			var bitmapdata = new LBitmapData(res["n_"+0]);
+			var bitmapdata = new LBitmapData(g_res["n_"+0]);
 			scoreIcon[i].bitmapData=bitmapdata;
 			scoreIcon[i].x = 10+ UI_SCORE_SPLITE * i;
 			scoreIcon[i].y = 0;
@@ -411,29 +510,52 @@
 			uiCanvas.addChild(tipIcon[i]);
 		}
 		
-		
 		endBkCanvas = new LSprite();
 		mainCanvas.addChild(endBkCanvas);
 		
 		personCanvas = new LSprite();
 		mainCanvas.addChild(personCanvas);
-		var tdata = new LBitmapData(res["p_van"]);
+		var tdata = new LBitmapData(g_res["p_van"]);
 		bkVan = new LBitmap(tdata);
 		bkVan.x = UI_VAN_X;
 		bkVan.y = UI_VAN_Y;
 		personCanvas.addChild(bkVan);
-		tdata = new LBitmapData(res["p_shilei"]);
+		tdata = new LBitmapData(g_res["p_shilei"]);
 		bkShilei = new LBitmap(tdata);
 		bkShilei.x = UI_SHILEI_X;
 		bkShilei.y = UI_SHILEI_Y;
 		personCanvas.addChild(bkShilei);
 		
-//		VanOpaiBtn = new SButton(50,110,"good end",uiCanvas,function(){
+////		test event coude be here
+//		VanOpaiBtn = new SButton(50,110,"0000000",uiCanvas,function(){
 //			event_good_end();
 //			//event_bad_end();
-//			
+//
 //			});
 		
+		raffelCanvas = new LSprite();
+		uiCanvas.addChild(raffelCanvas);
+		raffelCanvas.graphics.drawRoundRect(2,"rgba(182,243,230,0)",[0,100,150,350,5],false);
+		raffelCanvas.addEventListener(LMouseEvent.MOUSE_UP,function(){
+			if(g_raffle_count>0){ //抽奖事件
+				event_raffle();
+				return;
+			}
+			else{
+				if(g_score >= 100){
+					g_score -= 100;
+					g_buff = "waite";
+					TxtDlg.show([{text:"消耗100分，购买抽奖！",type:VAN}],function(){
+							g_raffle_count ++;
+							event_raffle();
+						});
+					}
+				else{
+					TxtDlg.show([{text:"分数不足，无法抽奖！",type:VAN}],function(){});
+					}
+				}
+			})
+
 		//slOpaiBtn = new SButton(100,200,"tesddt",uiCanvas,function(){});
 
 		controlCanvas = new LSprite();
@@ -456,11 +578,11 @@
 		effectCanvas = new LSprite();
 		mainCanvas.addChild(effectCanvas);
 		
-		var boomData = new LBitmapData(res["ef_yushenmu"]);
+		var boomData = new LBitmapData(g_res["ef_yushenmu"]);
 		badEreaBoomImg = new LBitmap(boomData);
 		badEreaBoomImg.visible = false;
 		effectCanvas.addChild(badEreaBoomImg);
-		boomData = new LBitmapData(res["ef_boom"]);
+		boomData = new LBitmapData(g_res["ef_boom"]);
 		badEreaBoomImg2 = new LBitmap(boomData);
 		badEreaBoomImg2.visible = false;
 		
@@ -477,13 +599,13 @@
 		
 		//game loop
 		timer=TIMER(GAME_SPEED,MAX_VALUE,function(){
-			//trace("timer: "buff);
+			//trace("timer: "g_buff);
 				//BadEreaCompute();
 				reDrawCtrSp();
 				reDrawScore();
 				checkFrame();
-				if(buff=="compute"){compute();}
-				switch (buff) {
+				if(g_buff=="compute"){compute();}
+				switch (g_buff) {
 					case "laser":
 					laser();
 					break;
@@ -498,9 +620,6 @@
 					break;
 					case "spNew":
 					spNew();
-					BadEreaTimesSub();
-					spDown();
-					reDrawTip();
 					break;
 					case "spDown":
 					spDown();
@@ -546,7 +665,7 @@
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
 			scoreCur[i] = 0;
 			scorePre[i] = 0;
-			var bitmapdata= new LBitmapData(res["n_0"]);
+			var bitmapdata= new LBitmapData(g_res["n_0"]);
 			scoreIcon[i].bitmapData = bitmapdata;
 		}
 		
@@ -563,15 +682,14 @@
 			spIcon[i].bitmapData = bitmapdata;
 		}
 		spCurLen = 3;
-		spShowX = SP_W_N * SP_NEW_X;
-		spShowY = 0;
-		score = 0;
-		scoreShow = 0;
-		lineAdd=0;//combo 
+		g_score = 0;
+		g_scoreShow = 0;
+		g_lineAdd = 1;//分数额外翻倍
 		spSwapIdx = 0; //swap square idx swap idx square and idx+1 square
-		spSpeed = 5;
-		spSpeedPre = 5;
-		spSpeedLock = false; //速度更改锁
+		g_spSpeed = STAGE_INFO[0].speed;					//当前的速度
+		g_spSpeedApend = 0;
+		g_spSpeedPre = 5;				//上一次暂存真实的速度
+		g_spSpeedLock = false; //速度更改锁
 		
 		//初始化炸毁区域
 		badErea = [];
@@ -594,12 +712,12 @@
 		controlF[2] = spChang;
 		controlF[3] = spOver;
 		
-
-		
 		//初始化特殊长度回合
 		longSpTimes = 1;
 		//给予一次保护方块机会
-		g_bWTF = true;
+		g_protectCount = 1;
+		//初始化抽奖次数
+		g_raffle_count = 0;
 		
 		if(LGlobal.os == OS_PC){
 					g_showType = "native";
@@ -610,15 +728,10 @@
 						g_needChangeCanvas = true;
 						}
 		
-		buff="waite";
-		var txtData = [
-		{text:"简单说一下...",type:"right"}
-		,{text:"努力玩到高分可以有好结局...",type:"left"}
-		,{text:"电脑可以用wsad操控，q键切换全屏",type:"left"}
-		,{text:"祝你玩得愉快...",type:"left"}
-		];
+		g_buff="waite";
+		var txtData = TXT_begin_1;
 		TxtDlg.show(txtData,function(){
-			buff="spNew";
+			g_buff="spNew";
 			});
 		
 	};
@@ -641,11 +754,12 @@
 		}
 	
 	over=function(){
-		buff="waite";
+		g_buff="waite";
 	};
 
 	compute=function(){
-		buff="spNew";
+		g_buff="spNew";
+		var score_time = 10;
 		for (var x = 0; x < SP_W_N; x++) {
 			for(var y=0;y < SP_H_N;y++){
 				if(dataCur[x][y]!=0&&dataCur[x][y]!=8){
@@ -654,23 +768,18 @@
 							dataTemp[x][y]=9;
 							dataTemp[x][y+1]=9;
 							dataTemp[x][y+2]=9;
-							buff="showYSM";
+							score_time += 2;
+							g_buff="showYSM";
 						}
-					}
-					if(y>=2){
-						if(dataCur[x][y]==dataCur[x][y-1]&&dataCur[x][y]==dataCur[x][y-2]){
-							dataTemp[x][y]=9;
-							dataTemp[x][y-1]=9;
-							dataTemp[x][y-2]=9;
-							buff="showYSM";
-						}
+						
 					}
 					if(x<SP_W_N-2){
 						if(dataCur[x][y]==dataCur[x+1][y]&&dataCur[x][y]==dataCur[x+2][y]){
 							dataTemp[x][y]=9;
 							dataTemp[x+1][y]=9;
 							dataTemp[x+2][y]=9;
-							buff="showYSM";
+							score_time += 2;
+							g_buff="showYSM";
 						}
 					}
 					if(y<SP_H_N-2&&x<SP_W_N-2){
@@ -678,7 +787,8 @@
 							dataTemp[x][y]=9;
 							dataTemp[x+1][y+1]=9;
 							dataTemp[x+2][y+2]=9;
-							buff="showYSM";
+							score_time += 2;
+							g_buff="showYSM";
 						}
 					}
 					if(x>=2&&y<SP_H_N-2){
@@ -686,32 +796,18 @@
 							dataTemp[x][y]=9;
 							dataTemp[x-1][y+1]=9;
 							dataTemp[x-2][y+2]=9;
-							buff="showYSM";
-						}
-					}
-					if(x>=2&&y>=2){
-						if(dataCur[x][y]==dataCur[x-1][y-1]&&dataCur[x-1][y-1]==dataCur[x-2][y-2]){
-							dataTemp[x][y]=9;
-							dataTemp[x-1][y-1]=9;
-							dataTemp[x-2][y-2]=9;
-							buff="showYSM";
-						}
-					}
-					if(x<SP_W_N-2&&y>=2){
-						if(dataCur[x][y]==dataCur[x+1][y-1]&&dataCur[x+1][y-1]==dataCur[x+2][y-2]){
-							dataTemp[x][y]=9;
-							dataTemp[x+1][y-1]=9;
-							dataTemp[x+2][y-2]=9;
-							buff="showYSM";
+							score_time += 2;
+							g_buff="showYSM";
 						}
 					}
 				}
 
 			}
 		}
-		
-		if(buff =="showYSM"){
-			buff = "waite";
+	
+		if(g_buff =="showYSM"){
+			g_buff = "waite";
+			g_lineAdd = g_lineAdd * (score_time-2)/10; 
 			addYSM();
 			reDraw();
 			}
@@ -725,27 +821,25 @@
 			for (var y = 0; y < SP_H_N; y++) {
 				if(dataTemp[x][y]==9){
 					dataCur[x][y]=7;
-					num+=ADD_SCORE_VAL;
+					num+=g_add_score;
 					showX=x;
 					showY=y;
 				}
 			}
 		}
-		lineAdd+=1;
-		num=num*lineAdd;
+		num=Math.floor(num*g_lineAdd);
 		changeScore(num,240+showX*40,50+(9-showY)*40);
+		g_lineAdd+=1;
 		for(var i in GENG){
-			if(GENG[i].num == score){
-				buff="waite";
-				var txtData = [{text:GENG[i].text,type:"left"}];
+			if(GENG[i].num == g_score){
+				g_raffle_count += 1;
+				var txtData = [{text:GENG[i].text,type:VAN}];
 				TxtDlg.show(txtData,function(){
-					event_raffle();
 					});
-				return;
 				}
 			}
 		TIMER(500,1,function(){
-				buff ="showYSM";
+				g_buff ="showYSM";
 				});
 	};
 	clearYSM=function(){
@@ -757,22 +851,22 @@
 				}
 			}
 		}
-		buff="down";
+		g_buff="down";
 	};
 
 	down=function(){
-		buff="compute";
+		g_buff="compute";
 		var data = dataCur;
 		for (var x1 = 0; x1 < SP_W_N; x1++) {
 			for (var y1 = 0; y1 < SP_H_N-1; y1++) {
 				var curIcon = data[x1][y1];
 				var preIcon = data[x1][y1+1];
-				if(curIcon==0&&preIcon>0&&preIcon<8){																					 
+				if(curIcon==0&&preIcon>0&&preIcon<8){
 					for (var z1 = y1; z1 < SP_H_N-1; z1++) {
 						data[x1][z1]=data[x1][z1+1];
-						buff="down";	
+						g_buff="down";
 					}
-					data[x1][SP_H_N-1]=0;	
+					data[x1][SP_H_N-1]=0;
 				}
 			}
 		}
@@ -791,25 +885,36 @@
 		spY=SP_H_N;
 		spIconX=SP_NEW_X * SP_W;
 		spIconX=0;
-		lineAdd=0;
+		g_lineAdd = 1;
 		spCtrlCanvas.visible = true;
 		spCtrlCanvas.x = SP_NEW_X * SP_W;
 		spCtrlCanvas.y = 0;
 		
-		if(dataCur[SP_NEW_X][SP_H_N-g_spLen-1]!=0&&g_bWTF){ //特殊事件_保护秘籍
-			g_bWTF = false; //只能用一次
-			for(var i=0; i<g_spLen;i++){
-				spCur[i]=7;
-				}
-		}
 		//计算特殊长度回合
 		if(longSpTimes>1){
 			longSpTimes --;
 		}
 		else{
-			g_spLen=UI_TIP_LEN	;
+			g_spLen=UI_TIP_LEN;
 		}
 		
+		//减少毁坏区域存在时间
+		BadEreaTimesSub();
+		
+//		if(g_raffle_count>0){ //抽奖事件
+//			event_raffle();
+//			return;
+//			}
+		
+		if(dataCur[SP_NEW_X][SP_H_N-g_spLen-1]!=0&&g_protectCount>0){ //特殊事件_保护秘籍
+			g_protectCount--;//保护减1
+			for(var i=0; i<g_spLen;i++){
+				spCur[i]=7;
+				}
+		}
+		
+		spDown();
+		reDrawTip();
 	};
 	spAdd=function(){
 		for (var i = 0; i < SP_H_N-spY&&i<SP_MAX_LEN; i++) {
@@ -821,42 +926,38 @@
 	};
 	
 	spDown=function(){
-		buff="spDown";
-		spCtrlCanvas.y += spSpeed;
+		g_buff="spDown";
+		spCtrlCanvas.y += g_spSpeed;
 		var curY = SP_H_N - Math.floor(spCtrlCanvas.y/SP_H);
-		if(curY == spY&&curY!=SP_H_N){	
+		if(curY == spY&&curY!=SP_H_N){
 			return ;
 			}
 			else
 				{
 					spY = curY;
 				}
-		if(spY>0&&dataCur[spX][spY-1]==0){		
+		if(spY>0&&dataCur[spX][spY-1]==0){
 		}
 		else {
 			spAdd();
-			buff="compute";
+			g_buff="compute";
 			
-			
-			spSpeedLock = false; //恢复加速功能
-			if(spSpeed >= SP_DOWN_SPEED_QUICK){
-				 spSpeed = spSpeedPre;	
+			g_spSpeedLock = false; //恢复加速功能
+			if(g_spSpeed >= SP_DOWN_SPEED_QUICK){
+				 g_spSpeed = g_spSpeedPre;
 				}
 			
 			if(dataCur[spX][spY]==7){
 				square = dataCur[spX][spY-1];
-				buff = "laser";
+				g_buff = "laser";
 				if(square == 8){ //如果碰到了损坏区域，完全清除！
 					BadEreaDestory();
 					}
 				}
 			if(spY==SP_H_N){
 				if(g_endState == 0){
-						buff="gameOver";
-						var txtData = [{text:"这就死了？渣渣...",type:"left"},
-						{text:"我觉得你有进步的空间",type:"right"},
-						{text:"那你加油咯！",type:"left"}
-						];
+						g_buff="gameOver";
+						var txtData = TXT_normalEnd_1;
 						TxtDlg.show(txtData,function(){
 						init();
 						});
@@ -869,12 +970,12 @@
 					}
 				
 				
-				//dataIconFly();		
+				//dataIconFly();
 				}
 		}
 	};
 	spLeft=function(){
-		if(spX>0&&buff=="spDown"){
+		if(spX>0&&g_buff=="spDown"){
 			var bMove = true;
 			for(var i = 0; i < g_spLen; i++){
 				var x = spX-1;
@@ -891,7 +992,7 @@
 	};
 	
 	spRight=function(){
-		if(spX < SP_W_N-1&& buff == "spDown"){
+		if(spX < SP_W_N-1&& g_buff == "spDown"){
 			var bMove = true;
 			for(var i = 0; i < g_spLen; i++){
 				var x = spX+1;
@@ -907,20 +1008,20 @@
 		}
 	};
 	spOver=function(){
-		if(buff!="spDown"||spSpeedLock){return 0;}
-		spSpeedLock = true;
-		spSpeedPre = spSpeed;	
-		spSpeed = SP_DOWN_SPEED_QUICK;
+		if(g_buff!="spDown"||g_spSpeedLock){return 0;}
+		g_spSpeedLock = true;
+		g_spSpeedPre = g_spSpeed;
+		g_spSpeed = SP_DOWN_SPEED_QUICK;
 		TIMER(500,1,function(){
-			if(spSpeedLock){
-					spSpeed = spSpeedPre;	;
-					spSpeedLock = false;
+			if(g_spSpeedLock){
+					g_spSpeed = g_spSpeedPre;	;
+					g_spSpeedLock = false;
 				}
 			});
 	};
 	
 	spChang=function(){
-		if(buff!="spDown"){return 0;}
+		if(g_buff!="spDown"){return 0;}
 		var idx = spSwapIdx;
 		var swapIdx = spSwapIdx+1;
 		
@@ -931,65 +1032,36 @@
 		spSwapIdx ++;
 		if(spSwapIdx >= spCurLen - 1){
 			spSwapIdx = 0;
-			} 
+			}
 	};
 
 	computeSpeed = function(){
-		var tempSpeed = spSpeed;
+		var tempSpeed = g_spSpeed;
 		var tempRandom = g_spRandomMax;
-		var tempAdd = ADD_SCORE_VAL;
-		if(score<100){
-			spSpeed=5;
-			g_spRandomMax = 4;
-			g_endState = 0;
-			ADD_SCORE_VAL = 1;
+		var tempAdd = g_add_score;
+		var stage = 0;
+		for(var i in STAGE_INFO){
+			if(g_score >= STAGE_INFO[i].stageScore ){
+				stage = STAGE_INFO[i].stage;
+				}
 			}
-		if(score>=100){
-			spSpeed=10;
-			g_spRandomMax = 5;
-			ADD_SCORE_VAL = 3;
-			}
-		if(score>500){
-				spSpeed=10;
-				g_spRandomMax = 6;
-				g_endState = 1;
-				ADD_SCORE_VAL = 5;
-			}
-		if(score>1000){
-			spSpeed= 10;
-			g_spRandomMax = 7;
-			ADD_SCORE_VAL = 7;
-			g_endState = 2;
-			}
-		if(score>2000){
-			spSpeed=15;
-			g_spRandomMax = 7;
-			g_endState = 2;
-			ADD_SCORE_VAL = 11;
-			}
-		if(score>4500){
-			spSpeed=20;
-			g_spRandomMax = 7;
-			g_endState = 2;
-			ADD_SCORE_VAL = 17;
-			}
-		if(score>6000){
-			spSpeed=25;
-			g_spRandomMax = 7;
-			g_endState = 2;
-			ADD_SCORE_VAL = 27;
-			}
+		g_spSpeed = STAGE_INFO[stage].speed + g_spSpeedApend;
+		g_spRandomMax = STAGE_INFO[stage].sp;;
+		g_endState = STAGE_INFO[stage].end;
+		g_add_score = STAGE_INFO[stage].addScore;
+		
+
 		var txtData =[];
-		if(spSpeed > tempSpeed&&spSpeed!=SP_DOWN_SPEED_QUICK){
-			txtData.push({text:"速度增加！游得很快！",type:"left"});
+		if(g_add_score > tempAdd){
+			txtData.push({text:"分数速率增加！",type:VAN});
+			}
+		if(g_spSpeed > tempSpeed&&g_spSpeed!=SP_DOWN_SPEED_QUICK){
+			txtData.push({text:"速度增加！游得很快！",type:VAN});
 			}
 		if(g_spRandomMax > tempRandom){
-			txtData.push({text:"方块种类增加！非气加重！",type:"left"});
+			txtData.push({text:"方块种类增加！非气加重！",type:VAN});
 			}
-		if(ADD_SCORE_VAL > tempAdd){
-			txtData.push({text:"分数速率增加！",type:"left"});
-			}
-			
+
 		if(txtData.length > 0){
 			TxtDlg.show(txtData,function(){});
 			}
@@ -998,9 +1070,9 @@
 	changeScore=function(_score,_x,_y){
 		computeSpeed();
 		tempScore=[];
-		score+=_score;
+		g_score+=_score;
 		var txtData = "加"+_score+"分";
-		TxtDlg.show([{text:txtData,type:"left"}],function(){});
+		TxtDlg.show([{text:txtData,type:VAN}],function(){});
 		if(_score<0){_score=0-_score;tempScore.push(11);}
 		else {
 			tempScore.push(10);
@@ -1008,7 +1080,7 @@
 		bAddStar=false;
 		var tnum = 100000;
 		for (var i = 0; i < UI_SCORE_LEN; i++) {
-		 var num = Math.floor(score%tnum/(tnum/10));
+		 var num = Math.floor(g_score%tnum/(tnum/10));
 		 if(tnum!=0||bAddStar){
 		 	tempScore.push(tnum);
 		 	bAddStar =true;
@@ -1031,7 +1103,7 @@
 			if( i < g_spLen){
 				if(curid!=tipPre[i]){
 					if(curid > 0&&curid < 9){
-						bmpData = new LBitmapData(res["i_"+curid]);
+						bmpData = new LBitmapData(g_res["i_"+curid]);
 						tipIcon[g_spLen-1-i].bitmapData = bmpData;
 					}
 					else
@@ -1053,18 +1125,21 @@
 		var i;
 		var base = 1;
 		var times = 1;
-		while(score-scoreShow >= base){
-			scoreShow += times;
+		if(g_score < g_scoreShow){
+			g_scoreShow = g_score;
+			}
+		while(g_score-g_scoreShow >= base){
+			g_scoreShow += times;
 			times = times * 10;
 			base += times;
 			}
 
 		for (i = 0; i < UI_SCORE_LEN ; i++) {
-			var num = Math.floor(scoreShow%tnum/(tnum/10));
+			var num = Math.floor(g_scoreShow%tnum/(tnum/10));
 			tnum = 10* tnum;
 			scoreCur[i] = num;
 			if(scoreCur[i]!=scorePre[i]){
-				var bitmapdata = new LBitmapData(res["n_"+num]);
+				var bitmapdata = new LBitmapData(g_res["n_"+num]);
 				scoreIcon[UI_SCORE_LEN-i-1].bitmapData=bitmapdata;
 			}
 			scorePre[i] = scoreCur[i];
@@ -1081,9 +1156,9 @@
 						}
 					else
 						{
-							var bitmapdata= new LBitmapData(res[("i_"+curid)]);
+							var bitmapdata= new LBitmapData(g_res[("i_"+curid)]);
 							spIcon[y].bitmapData = bitmapdata;
-						} 
+						}
 				}
 			}
 			spPre = spCur.concat();
@@ -1101,19 +1176,19 @@
 						}
 					else
 						{
-							var txt = res[("i_"+curid)];
+							var txt = g_res[("i_"+curid)];
 							var bitmapdata= new LBitmapData(txt);
 							dataIcon[x][y].bitmapData = bitmapdata;
-						} 
+						}
 				}
-				dataPre[x][y]=dataCur[x][y]; //update draw buff data
+				dataPre[x][y]=dataCur[x][y]; //update draw g_buff data
 			}
 		}
 	};
 	
 	dataIconFly=function(){
 		var tTimer=0;
-		buff="waite";
+		g_buff="waite";
 		TIMER(100,20,function(){
 			for (var i = 0; i < SP_W_N; i++) {
 				for (var j = 0; j < 6; j++) {
@@ -1136,7 +1211,7 @@
 				}
 			}
 			reDraw();
-			buff = "down";
+			g_buff = "down";
 			});
 		};
 
@@ -1191,7 +1266,7 @@
 				BadEreaDrawBoomLock = false;
 				}
 			if(BadEreaDrawBoomLock){return;}
-			buff = "waite";
+			g_buff = "waite";
 			BadEreaDrawBoomLock = true;
 			badEreaBoomImg.visible = true;
 			badEreaBoomImg.x = 55;
@@ -1219,7 +1294,7 @@
 					badEreaBoomImg2.visible = false;
 					BadEreaDrawBoomLock = false;
 					boom(badEreaBoom_x,badEreaBoom_y,badEreaBoom_w,badEreaBoom_h);
-					buff = "spDown";
+					g_buff = "spDown";
 					}
 				);
 				
@@ -1238,7 +1313,7 @@
 						badEreaPathCur = badErea[i].drawPath
 						var g = badEreaCanvas[i].graphics;
 						g.clear();
-						g.drawRect(2,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H]);
+						g.drawRect(2,"#000000",[0,0,UI_GAME_W,UI_GAME_H]);
 
 						g.lineStyle = "#000000";
 						g.beginBitmapFill(mogekoData);
@@ -1308,19 +1383,19 @@
 		
 		laser=function(){
 			//trace("lasering:"+square);
-			buff = "showYSM";
+			g_buff = "showYSM";
 			var num = square;
 			for (var x = 0; x < SP_W_N; x++) {
 				for(var y=0;y < SP_H_N;y++){
 				if(dataCur[x][y]==num){
 					dataCur[x][y]=7;
-					buff = "waite";
+					g_buff = "waite";
 					var endx = UI_SP_X + x*SP_W+SP_W/2;
 					var endy = UI_SP_Y + (SP_H_N-1-y)*SP_H+SP_H/2;
 					reDraw();
 					event_laser(380,280,endx,endy);
 					TIMER(1300,1,function(){
-						buff = "laser";
+						g_buff = "laser";
 						});
 					return;
 					}
@@ -1369,29 +1444,29 @@
 				var blackCount = getRaffleSpecialIconCount(1);
 					if(ysmCount==3){
 						dataIconFly();
-						TxtDlg.show([{text:"that's power!",type:"right"}],function(){});
+						TxtDlg.show([{text:"that's power!",type:SILEI}],function(){});
 						trace("启用超级炸弹");
 						bNext = false;
 					}
 					if(ysmCount==2){
-						g_bWTF=true;
+						g_protectCount++;
 						trace("启用保护方块");
-						TxtDlg.show([{text:"奥义启用！",type:"right"}],function(){});
-						buff = "showYSM";
+						TxtDlg.show([{text:"奥义启用！",type:SILEI}],function(){});
+						g_buff = "showYSM";
 						bNext = false;
 					}
-					if(ysmCount==1){			
+					if(ysmCount==1){
 						if(blackCount >=1&&bNext){
-							if(score>500){
-								score -= 500;
+							if(g_score>500){
+								g_score -= 500;
 								}
 								else
 									{
-									score = 0;
+									g_score = 0;
 									}
-							TxtDlg.show([{text:"扣500分！",type:"right"}],function(){});
+							TxtDlg.show([{text:"扣500分！",type:SILEI}],function(){});
 							trace("扣500");
-							buff = "showYSM";
+							g_buff = "showYSM";
 							bNext = false;
 							}
 						}
@@ -1399,25 +1474,27 @@
 				if(childCount >=3&&bNext){
 					g_spLen = RANDOM(1,3);
 					trace("下落方块长度改变1-2");
-					TxtDlg.show([{text:"吼～！",type:"left"}],function(){});
+					TxtDlg.show([{text:"吼～！",type:VAN}],function(){});
 					longSpTimes = 10;
-					buff = "showYSM";
+					g_buff = "showYSM";
 					bNext = false;
 					
 					}
 				if(childCount ==2&&bNext){
-					spSpeed += 5;
+					if(g_spSpeedApend <= 9){
+						g_spSpeedApend += 3;
+						}
 					trace("下落速度增加");
-					TxtDlg.show([{text:"下落速度增加！",type:"left"}],function(){});
-					buff = "showYSM";
+					TxtDlg.show([{text:"下落速度增加！",type:VAN}],function(){});
+					g_buff = "showYSM";
 					bNext = false;
 					}
 				if(childCount ==1&&bNext){
 					g_spLen = RANDOM(4,7);
 					trace("下落方块长度改变4，6");
-					TxtDlg.show([{text:"啊！！！",type:"left"}],function(){});
+					TxtDlg.show([{text:"啊！！！",type:VAN}],function(){});
 					longSpTimes = 1;
-					buff = "showYSM";
+					g_buff = "showYSM";
 					bNext = false;
 					}
 					
@@ -1430,55 +1507,61 @@
 					BadEreaDrawBoom(x,y,w,h);
 					bNext = false;
 					trace("炸毁区域");
-					TxtDlg.show([{text:"fuck you!",type:"left"}],function(){});
+					TxtDlg.show([{text:"fuck you!",type:VAN}],function(){});
 				}
 				if(blackCount==2&&bNext){
 					event_fadeDark();
 					trace("黑屏");
-					buff = "showYSM";
-					TxtDlg.show([{text:"the deep dark fantasy♂",type:"left"}],function(){});
+					g_buff = "showYSM";
+					TxtDlg.show([{text:"the deep dark fantasy♂",type:VAN}],function(){});
 					bNext = false;
 					}
 				if(blackCount==1&&info.count<2&&bNext){
 					event_darkAndLight();
 					trace("半黑屏");
-					TxtDlg.show([{text:"状态异常!",type:"left"}],function(){});
+					TxtDlg.show([{text:"状态异常!",type:VAN}],function(){});
 					bNext = false;
-					buff = "showYSM";
+					g_buff = "showYSM";
 					}
 				if(blackCount==1&&info.count>1&&bNext){
 					event_controlChange();
 					trace("操作反转");
 					bNext = false;
-					TxtDlg.show([{text:"boy next door♂",type:"left"}],function(){});
-					buff = "showYSM";
+					TxtDlg.show([{text:"boy next door♂",type:VAN}],function(){});
+					g_buff = "showYSM";
 					}
 				
 				//计算普通数量
 				if(blackCount==0&&info.count==3&&bNext){
-					score += 1000;
+					g_score += 1000;
 					bNext = false;
 					trace("加1000");
-					TxtDlg.show([{text:"加1000分！吼～",type:"left"}],function(){});
-					buff = "showYSM";
+					TxtDlg.show([{text:"加1000分！吼～",type:VAN}],function(){});
+					g_buff = "showYSM";
 				}
 				if(blackCount==0&&info.count==2&&bNext){
-					score += 100;
+					g_score += 100;
 					trace("加100");
-					TxtDlg.show([{text:"加100分，恭喜！",type:"left"}],function(){});
+					TxtDlg.show([{text:"加100分，恭喜！",type:VAN}],function(){});
 					bNext = false;
-					buff = "showYSM";
+					g_buff = "showYSM";
 				}
 				if(bNext){
 				trace("谢谢惠顾");
-				TxtDlg.show([{text:"感恩之心",type:"left"}],function(){});
+				TxtDlg.show([{text:"什么也没抽到，送你一发炸弹吧",type:VAN}],function(){
+					var x = RANDOM(0,350);
+					var y = RANDOM(100,230);
+					var w = RANDOM(40,140);
+					var h = RANDOM(40,140);
+					BadEreaDrawBoom(x,y,w,h);
+					});
 				bNext = false;
-				buff = "showYSM";
+
 				}
 				for(var i = 0; i < g_spLen; i++){
 					tipCur[i] = RANDOM(1,g_spRandomMax);
 				}
-				raffleLock = false;	
+				raffleLock = false;
 			}
 		
 		event_raffle = function(){
@@ -1486,9 +1569,10 @@
 				raffleLock = false;
 				}
 			if(raffleLock){return;}
-			TxtDlg.show([{text:"是时候来鉴定一波血统了！",type:"left"}],function(){});
+			g_raffle_count--;
+			TxtDlg.show([{text:"是时候来鉴定一波血统了！",type:VAN}],function(){});
 			raffleLock = true;
-			buff = "raffle";
+			g_buff = "raffle";
 			TIMER(100,20,function(){
 				for(var i = 0; i < UI_TIP_LEN; i++){
 					tipCur[i] = RANDOM(1,9);
@@ -1499,7 +1583,6 @@
 		}
 		
 		keyTriF=function(key){
-			trace("key press:"+key);
 			switch (key) {
 				case 119:
 				(controlF[2])();
@@ -1550,7 +1633,7 @@
 			
 			g.beginPath();
 			
-			g.moveTo(l.EX,l.EY);	
+			g.moveTo(l.EX,l.EY);
 			for(var i = 0;i < l.path.length-1;i+=2){
 				g.lineTo(l.path[i][0],l.path[i][1]);
 				g.lineTo(l.path[i+1][0],l.path[i+1][1]);
@@ -1593,7 +1676,7 @@
 		}
 	
 	event_bad_end = function(){
-		buff = "waite"
+		g_buff = "waite"
 		mainCanvas.removeChild(controlCanvas);
 		badendSps = [];
 		endBkCanvas.x = UI_VAN_X;
@@ -1608,7 +1691,7 @@
 		for(var cx = 0; cx<w; cx++){
 			badendSps[cx]=[];
 			for(var cy = 0; cy<h; cy++){
-				var bmpData = new LBitmapData(res["p_van"]);
+				var bmpData = new LBitmapData(g_res["p_van"]);
 				badendSps[cx][cy] = new LShape();
 				var g = badendSps[cx][cy].graphics;
 				g.clear();
@@ -1621,65 +1704,17 @@
 			personCanvas.removeChild(bkVan);
 			
 			
-			var txtData = [{text:"....",type:"left"}
-				,{text:"咳...",type:"left"}
-				,{text:"van少，你怎么了？",type:"right"}
-				,{text:"尸雷，你听我说...",type:"left"}
-				,{text:"...",type:"right"}
-				,{text:"看来这情况无法再呆这儿了",type:"left"}
-				,{text:"我必须要去那个地方了",type:"left"}
-				,{text:"去了那个地方可能...",type:"left"}
-				,{text:"就再也回不来了...",type:"left"}
-				,{text:"可能这件有些突然...",type:"left"}
-				,{text:"走之前...尸雷...",type:"left"}
-				,{text:"......",type:"right"}
-				,{text:"最近看你若有所思的样子",type:"right"}
-				,{text:"你一直都在想这个事对吧？",type:"right"}
-				,{text:"你是个说到做到的人",type:"right"}
-				,{text:"现在我发现我讨厌这样的你",type:"right"}
-				,{text:"你这样做你真的开心吗？",type:"right"}
-				,{text:"明明好不容易才有了...",type:"right"}
-				,{text:"和我在一起哪点不好吗？",type:"right"}
-				,{text:"van少，你是个无情的人！",type:"right"}
-				,{text:"你不会获得幸福的！",type:"right"}
-				];
+			var txtData = TXT_badEnd_1;
 				TxtDlg.show(txtData,function(){
-					var txtData = [{text:".........",type:"left"}
-					,{text:"van...你...",type:"right"}
-					,{text:"你的身体！要消失了！",type:"right"}
-					,{text:"这是怎么了！快回答我！",type:"right"}
-					,{text:"对不起...",type:"left"}
-					,{text:"说你的身体啊!!!",type:"right"}
-					,{text:"如你所见，我要去那儿了",type:"left"}
-					,{text:"那儿是哪儿啊？身体不要消失啊",type:"right"}
-					,{text:"我有话对你说...",type:"left"}
-					,{text:"...我...我...对你...",type:"left"}
-					,{text:".......",type:"left"}
-					,{text:"你有什么话想说啊？说啊！",type:"right"}
-					,{text:"...我......",type:"left"}
-					];
+					var txtData = TXT_badEnd_2;
 					TxtDlg.show(txtData,function(){
-					var bmpData = new LBitmapData(res["p_shilei_sad"]);
+					var bmpData = new LBitmapData(g_res["p_shilei_sad"]);
 					bkShilei.bitmapData = bmpData;
-					
-					var txtData = [{text:"van少!!!",type:"right"}
-					,{text:"你别走！！",type:"right"}
-					,{text:"van少！你能听见我说话吗？",type:"right"}
-					,{text:"你把话说完啊！！",type:"right"}
-					,{text:"你说话啊！！你是装听不到吗？",type:"right"}
-					,{text:"你这个混蛋！！",type:"right"}
-					,{text:"为什么不早告诉我！",type:"right"}
-					,{text:"我有好多话来不及给你说",type:"right"}
-					,{text:"van...",type:"right"}
-					,{text:"van......",type:"right"}
-					,{text:"我来找你了...",type:"right"}
-					];
+					var txtData = TXT_badEnd_3;
 					TxtDlg.show(txtData,function(){
-						
 						LTweenLite.to(bkShilei,2,{x:UI_VAN_X,y:UI_VAN_Y,alpha:0,delay:0,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 								//game over
 								}});
-						
 						});
 					b_breakAll = true;
 					if(breakY<=5){
@@ -1731,65 +1766,23 @@
 						breakLast();
 						}});
 				}
-			
 			}
-		
-		showNextTalk = function(){
-			
-			
-			}
-			
-			
-			
 		}
 	
 	event_good_end = function(){
-		buff = "waite"
+		g_buff = "waite"
 		mainCanvas.removeChild(controlCanvas);
-		var bmpData = new LBitmapData(res["bk_img_mogeko"]);
+		var bmpData = new LBitmapData(g_res["bk_img_mogeko"]);
 		var bmp = new LBitmap(bmpData);
 		endBkCanvas.addChild(bmp);
-		var txtData = [{text:"......",type:"left"}
-				,{text:"......",type:"right"}
-				,{text:"其实...",type:"right"}
-				,{text:"终于到了这种时刻..",type:"left"}
-				,{text:"尸雷！你听我说...",type:"left"}
-				,{text:"...",type:"right"}
-				,{text:"我再也等不下去了...",type:"left"}
-				,{text:"第一次见到你时，",type:"left"}
-				,{text:"纯真无邪，快乐活泼...",type:"left"}
-				,{text:"现在你已经变得如此憔悴",type:"left"}
-				,{text:"这个世界太奇怪！",type:"left"}
-				,{text:"没有保护认真对待生活的人",type:"left"}
-				,{text:"现在你不用再担心什么了",type:"left"}
-				,{text:"即使对抗世界",type:"left"}
-				,{text:"我也要你幸福!",type:"left"}
-				,{text:"尸雷,我们在一起吧!",type:"left"}
-				,{text:"...",type:"right"}
-				,{text:"van少，我答应你的请求！",type:"right"}
-				,{text:"虽然我没什么大的能力",type:"right"}
-				,{text:"倘若你遇到了困难",type:"right"}
-				,{text:"我将全心全意支持你",type:"right"}
-				,{text:"尸雷！",type:"left"}
-				,{text:"van！",type:"right"}
-				];
+		var txtData = TXT_goodEnd_1;
 				TxtDlg.show(txtData,function(){
 					LTweenLite.to(bkVan,2,{x:UI_VAN_X+150,y:UI_VAN_Y,delay:1,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
-					
-
-				
 					}});
-					
 					LTweenLite.to(bkShilei,2,{x:UI_SHILEI_X-150,y:UI_VAN_Y,delay:1,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
-					
 					effect_mutiHeart_On(0,350,personCanvas)
-				
-				
 				}});
 			});
-		
-		
-		
 		}
 	
 	
@@ -1800,7 +1793,7 @@
 			b_laser = true;
 			}
 		if(!b_laser){return;}
-		TxtDlg.show([{text:"oh~my萧儿♂",type:"right"}],function(){});
+		TxtDlg.show([{text:"oh~my萧儿♂",type:SILEI}],function(){});
 		b_laser = false;
 		l = {};
 		l.SX = _x;
@@ -1830,7 +1823,7 @@
 			if(l.linW > 2){
 				l.linW -=1
 				l.linAlpha +=0.1;
-				} 
+				}
 			event_laser_draw();
 			});
 		
@@ -1841,8 +1834,6 @@
 			b_laser = true;
 			});
 	}
-	
-	
 	
 	drawHeart = function(_x,_y,_w,_fillColor,_parent)
 	{
@@ -1922,10 +1913,7 @@
 			}
 		b_mutiHeart = false;
 		}
-	
-	
-	
-	event_fadeDark = function(){	
+	event_fadeDark = function(){
 		if(typeof(b_fadeDark) == "undefined"){
 			b_fadeDark = true;
 			}
@@ -1935,7 +1923,7 @@
 		fadeDarkCanvas.alpha = 0.05;
 		var g = fadeDarkCanvas.graphics;
 		g.clear();
-		g.drawRect(1,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H],true,"#000000");
+		g.drawRect(1,"#000000",[0,0,UI_GAME_W,UI_GAME_H],true,"#000000");
 		b_fadeDark = false;
 		TIMER(100,10,function(){
 			fadeDarkCanvas.alpha += 0.1;
@@ -1946,14 +1934,13 @@
 			});
 		trace("event_fadeDark");
 		};
-	
 	event_darkAndLight = function(){
 		if(typeof(b_darkAndLight) == "undefined"){
 			b_darkAndLight = true;
 			}
 		if(!b_darkAndLight){return;}
 		darkAndLightCanvas = new LSprite();
-		effectCanvas.addChild(darkAndLightCanvas);	
+		effectCanvas.addChild(darkAndLightCanvas);
 		tempSpCanvas = new LSprite();
 		tempSpCanvas.x = UI_SP_X;
 		tempSpCanvas.y = UI_SP_Y;
@@ -1961,7 +1948,7 @@
 		tempSpCanvas.addChild(spCtrlCanvas);
 		var g = darkAndLightCanvas.graphics;
 		g.clear();
-		g.drawRect(1,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H],true,"#000000");
+		g.drawRect(1,"#000000",[0,0,UI_GAME_W,UI_GAME_H],true,"#000000");
 		
 		b_darkAndLight = false;
 		TIMER(5000,1,function(){
@@ -1994,32 +1981,30 @@
 			
 		}
 	loadOver = function(){
-		soundRes.play();
-		trace("soundRes load over");
+		g_soundRes.play();
+		trace("g_soundRes load over");
 		}
 	
 	//game logic
 	function onup(e){
 		backLayer.graphics.clear();
-		backLayer.removeAllEventListener(); 
+		backLayer.removeAllEventListener();
 		var url = "./s_bgm_up.";
-   	soundRes.load(url+"mp3,"+url+"ogg,"+url+"wav");
-    soundRes.addEventListener(LEvent.COMPLETE,loadOver);
-		
+   	g_soundRes.load(url+"mp3,"+url+"ogg,"+url+"wav");
+    g_soundRes.addEventListener(LEvent.COMPLETE,loadOver);
 		LLoadManage.load(
 		DATA_RAW,
 		function(progress){
-			loadingLayer.setProgress(progress);
+			g_loadingLayer.setProgress(progress);
 		},
 		function(result)
 		{
-			res = result;
+			g_res = result;
 
 			init();
-			backLayer.removeChild(loadingLayer);
-			loadingLayer = null;
+			backLayer.removeChild(g_loadingLayer);
+			g_loadingLayer = null;
 			
-
 			trace("load over");
 		});
 	}
@@ -2035,20 +2020,26 @@
 				addChild(backLayer);
 				addChild(gameLayer);
 				addChild(uiLayer);
-				soundRes = new LSound();
-				loadingLayer = new LoadingSample3();
-				backLayer.addChild(loadingLayer);
-				backLayer.graphics.drawRect(1,"#000000",[0,0,UI_GAME_PIX_W,UI_GAME_PIX_H],true,"#000000");
+				g_soundRes = new LSound();
+				g_loadingLayer = new LoadingSample3();
+				backLayer.addChild(g_loadingLayer);
+				backLayer.graphics.drawRect(1,"#000000",[0,0,UI_GAME_W,UI_GAME_H],true,"#000000");
 				backLayer.addEventListener(LMouseEvent.MOUSE_UP,onup);
 				var txt = new LTextField();
 				txt.text = "点击加载游戏资源"
 				txt.color = "#FF0000";
-				txt.x = UI_GAME_PIX_W/2 -50;
-				txt.y = UI_GAME_PIX_H/2+50;
+				txt.x = UI_GAME_W/2 -50;
+				txt.y = UI_GAME_H/2+50;
 				backLayer.addChild(txt);
+				
+				if(LGlobal.os == OS_PC){
+					LGlobal.screen(1);
+					}
+					else{
+						LGlobal.screen(LStage.FULL_SCREEN);
+						}
 
 		}
 		//execute code
-		LInit(50,"mylegend",UI_GAME_PIX_W,UI_GAME_PIX_H,main);
-
-	
+		LInit(50,"mylegend",UI_GAME_W,UI_GAME_H,main);
+																																															
