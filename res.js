@@ -54,7 +54,7 @@
 			t.mainicon[i] = new LBitmapData(_res["i_" + i]);
 			t.mainiconDes[i] = [];
 			for(var j = 0; j <= t.ANI_FRAME_COUNT; j++){
-				t.mainiconDes[i][j] = new LBitmapData(_res["i_end_" + i + "_" + j]);
+				//t.mainiconDes[i][j] = new LBitmapData(_res["i_end_" + i + "_" + j]);
 				}
 			}
 		

@@ -76,7 +76,7 @@
 			}
 		for (var i = 0; i < SP_W_N; i++) {
 			for (var j = 0; j < SP_H_N; j++) {
-				var desTimes = t._dataDestoryAniTimes[i][j]
+				var desTimes = Math.ceil(t._dataDestoryAniTimes[i][j]/2)
 				if(desTimes > 0){
 					t._dataDestoryAniTimes[i][j] --;
 					if(t._dataDestoryAniTimes[i][j] == 0){
@@ -126,7 +126,7 @@
 		var t = MainCav;
 		if(_x > SP_W_N || _x < 0|| _y < 0 ||_y > SP_H_N){return; }
 		if(_num == 0){
-			t._dataDestoryAniTimes[_x][_y] = ResBitMap.ANI_FRAME_COUNT;
+			t._dataDestoryAniTimes[_x][_y] = ResBitMap.ANI_FRAME_COUNT * 2;
 			g_isInAni = true;
 			}
 		else{
@@ -198,8 +198,13 @@ RandomCav._creat = function(cav){ //arg2:raffle event recall func
 	var t = RandomCav;
 	t._cav =  new LSprite();
   cav.addChild(t._cav);
+	
+	t._raffleCount = -1;
+	t._randomMax = 4;
+	t._randomLen = 3;
 	t._data = [];
 	t._dataPre = [];
+	t._dataNext = [];
 	t._icon = [];
 	for (i = 0; i < SP_MAX_LEN; i++) {
 		t._icon[i] = new LBitmap();
@@ -209,20 +214,18 @@ RandomCav._creat = function(cav){ //arg2:raffle event recall func
 		t._data[i] = 0;
 		t._dataPre[i] = 0;
 	}
-	t._raffleCount = -1;
-	t._randomMax = 4;
-	t._randomLen = 3;
+	
 	RandomCav.init();
 	}
 RandomCav._timer = function(){
 	var t = RandomCav;
 	for (i = 0; i < SP_MAX_LEN; i++) {
-		var cur = t._data[i];
+		var cur = t._dataNext[i];
 		if(cur != t._dataPre[i]){
 			t._icon[i].bitmapData = ResBitMap.mainicon[cur];
 		}
 	}
-	t._dataPre = t._data.concat();
+	t._dataPre = t._dataNext.concat();
 	
 	if(t._raffleCount > 0){
 		t.newSp();
@@ -235,24 +238,28 @@ RandomCav._timer = function(){
 	}
 RandomCav.init = function(){
 	var t = RandomCav;
-	for (i = 0; i < t._randomLen; i++) {
-		t._data[i] = RANDOM(1,4);
-		t._dataPre[i] = 0;
-	}
-	
 	t._raffleCount = -1;
 	t._randomMax = 4;
 	t._randomLen = 3;
+	
+	t._data = [];
+	t._dataPre = [];
+	t._dataNext = [];
+	for (i = 0; i < t._randomLen; i++) {
+		t._data[i] = RANDOM(1,t._randomMax);
+		t._dataPre[i] = 0;
+		t._dataNext[i] = RANDOM(1,t._randomMax);
+	}
+
 	}
 RandomCav.newSp = function(){
 	var t = RandomCav;
 	var tempResult = [];
 	for(var y = 0; y < t._randomLen;y++){
-		t._data[y] = RANDOM(1,t._randomMax);
+		tempResult[y] = RANDOM(1,t._randomMax);
 	}
-	ControlCav.reloadSetUp();
-	ControlCav.resetSp();
-	return true;
+	t._data = t._dataNext;
+	t._dataNext = tempResult;
 	}
 RandomCav.setRandomMax = function(num){
 	t._randomMax = num;
@@ -335,15 +342,18 @@ RandomCav.raffleSimulation = function(){//
 			t._icon[i].x = 0;
 			t._icon[i].y = 0 - (i+1) * SP_H; // correct y
   	}
+  	
+  	t._spSpeed = STAGE_INFO[0].speed;
   	ControlCav.reloadSetUp();
   	ControlCav.resetSp();
 		}
 	ControlCav.reloadSetUp = function(){
 		var t = ControlCav;
-		t._spSpeed = STAGE_INFO[0].speed;
+		RandomCav.newSp();
 		t._spSpeedAppend = 0;
 		t._data = RandomCav.GETICONDATA().concat();
 		t._spSpeedEx = false; 
+		return true;
 		}
 	ControlCav.resetSp = function(){
 		var t = ControlCav;
@@ -398,6 +408,7 @@ RandomCav.raffleSimulation = function(){//
 		return  SP_H_N - Math.floor(t._spCav.y/SP_H);
 		}
 	ControlCav.moveDown = function(){
+		if(g_isInAni){return;}
 		var t = ControlCav;
 		t._spCav.y += t._getSpeed();
 		var x = t._getX();
@@ -410,6 +421,7 @@ RandomCav.raffleSimulation = function(){//
 		return false;
 		}
 	ControlCav.moveLeft = function(){
+		if(g_isInAni){return;}
 		var t = ControlCav;
 		var x = t._getX();
 		var y = t._getY();
@@ -418,6 +430,7 @@ RandomCav.raffleSimulation = function(){//
 			}
 		}
 	ControlCav.moveRight = function(){
+		if(g_isInAni){return;}
 		var t = ControlCav;
 		var x = t._getX();
 		var y = t._getY();
@@ -426,6 +439,7 @@ RandomCav.raffleSimulation = function(){//
 			}
 		}
 	ControlCav.convert = function(){
+		if(g_isInAni){return;}
 		var t = ControlCav;
 		var len = t._data.length;
 		var last =t._data[len-1];
@@ -851,7 +865,7 @@ ScoreManage._changeScore = function(_score,_x,_y){
 	var tnum = 100000;
 	for (var i = 0; i < UI_SCORE_LEN; i++) {
 		var num = Math.floor(t._score%tnum/(tnum/10));
-		if(tnum!=0||bAddStar){
+		if(num!=0||bAddStar){
 			tempScore.push(num);
 			bAddStar =true;
 		}
@@ -867,7 +881,7 @@ ScoreManage._changeScore = function(_score,_x,_y){
 					temp.y = 0;
 					effCav.addChild(temp);
 	}
-	LTweenLite.to(effCav,2,{x:_x,y:_y-50,alpha:0,scaleX:1,scaleY:1,delay:1,rotate:0,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
+	LTweenLite.to(effCav,1,{x:_x,y:_y-100,alpha:0,scaleX:1,scaleY:1,delay:1,rotate:0,ease:LEasing.Strong.easeInOut,tweenTimeline:LTweenLite.TYPE_TIMER,onComplete:function(e){
 			e.target.die();
 		}})
 
@@ -983,7 +997,7 @@ Game.LOGIC = {
 	"MOVEDOWN":{f:ControlCav.moveDown,l:"MOVEDOWN",r:"RESET_CONTROL"}
 	,"RESET_CONTROL":{f:ControlCav.resetSp,l:"COMPUTE",r:""}
 	,"COMPUTE":{f:ScoreManage.compute,l:"NEWSP",r:"COMPUTE"}
-	,"NEWSP":{f:RandomCav.newSp,l:"MOVEDOWN",r:"MOVEDOWN"}
+	,"NEWSP":{f:ControlCav.reloadSetUp,l:"MOVEDOWN",r:"MOVEDOWN"}
 };
 
 Game._creat = function(_cav){
