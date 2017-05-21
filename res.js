@@ -23,6 +23,7 @@
 	,{name:"num_7",path:"./img/num_7.png"}
 	,{name:"num_8",path:"./img/num_8.png"}
 	,{name:"num_9",path:"./img/num_9.png"}
+	,{name:"num_add",path:"./img/num_add.png"}
 	,{name:"i_1",path:"./img/i_black.png"}
 	,{name:"i_2",path:"./img/i_blue.png"}
 	,{name:"i_3",path:"./img/i_green.png"}
@@ -64,6 +65,7 @@
 			t.scoreIcon[i] = new LBitmapData(_res["n_" + i]);
 			t.addNumIcon[i] = new LBitmapData(_res["num_" + i]);
 			}
+		t.addIcon = new LBitmapData(_res["num_add"]);
 		
 		t.bkImg = {};
 		t.bkImg["ray"] = new LBitmapData(_res["bk_img_ray"]);

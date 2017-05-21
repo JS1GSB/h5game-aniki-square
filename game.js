@@ -424,7 +424,8 @@ RandomCav.raffleSimulation = function(){//
 		if(g_isInAni){return;}
 		var t = ControlCav;
 		var x = t._getX();
-		var y = t._getY();
+		var posY = t._spCav.y+t._getSpeed();
+		var y = SP_H_N - Math.floor(posY/SP_H);
 		if(MainCav.checkMoveLeft(x,y,t._data)){
 			t._spCav.x -= SP_W;
 			}
@@ -433,7 +434,8 @@ RandomCav.raffleSimulation = function(){//
 		if(g_isInAni){return;}
 		var t = ControlCav;
 		var x = t._getX();
-		var y = t._getY();
+		var posY = t._spCav.y+t._getSpeed();
+		var y = SP_H_N - Math.floor(posY/SP_H);
 		if(MainCav.checkMoveRight(x,y,t._data)){
 			t._spCav.x += SP_W;
 			}
@@ -443,7 +445,7 @@ RandomCav.raffleSimulation = function(){//
 		var t = ControlCav;
 		var len = t._data.length;
 		var last =t._data[len-1];
-		for(var i = len; i > 1; i--){
+		for(var i = len - 1; i > 0; i--){
 			t._data[i] = t._data[i-1];
 		}
 		t._data[0] = last;
@@ -862,9 +864,12 @@ ScoreManage._changeScore = function(_score,_x,_y){
 
 	tempScore=[];
 	bAddStar=false;
-	var tnum = 100000;
+	var tnum = 1;
 	for (var i = 0; i < UI_SCORE_LEN; i++) {
-		var num = Math.floor(t._score%tnum/(tnum/10));
+		tnum = tnum * 10;
+	}
+	for (var i = 0; i < UI_SCORE_LEN; i++) {
+		var num = Math.floor(_score%tnum/(Math.floor(tnum/10)));
 		if(num!=0||bAddStar){
 			tempScore.push(num);
 			bAddStar =true;
@@ -875,9 +880,11 @@ ScoreManage._changeScore = function(_score,_x,_y){
 	effCav.x = _x;
 	effCav.y = _y;
 	t._cav.addChild(effCav);
+	var addIcon = new LBitmap(ResBitMap.addIcon);
+	effCav.addChild(addIcon);
 	for (var i = 0; i < tempScore.length; i++) {
 					var temp = new LBitmap(ResBitMap.addNumIcon[tempScore[i]]);
-					temp.x = i*20;
+					temp.x = (i+1)*20;
 					temp.y = 0;
 					effCav.addChild(temp);
 	}
