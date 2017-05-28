@@ -7,7 +7,7 @@
 
 
 
-	var g_isInAni = false;
+	var g_aniLock = 0;
 	var SP_ID_NULL = 0, SP_ID_BLACK = 6, SP_ID_YSM = 7, SP_ID_BAD = 8;
 	
 	var SP_W = 30;
@@ -15,10 +15,10 @@
 	var SP_NEW_X = 3;
 	var SP_W_N = 6;
 	var SP_H_N = 10;
-	var GAME_SPEED = 50; //ÓÎÏ·Ö÷Ñ­»·Ö´ÐÐµÄÊ±¼ä¼ä¸ô
-	var SP_DOWN_SPEED_QUICK = 30; //ÏÂÂä×î´óËÙ¶È
-	var SP_MAX_LEN = 6;//¿ØÖÆÏÂÂä·½¿é×î´óÊýÁ¿
-	var UI_TIP_LEN = 3; //ÌáÊ¾ÏÂÒ»¸öµÄ³¤¶È
+	var GAME_SPEED = 50; //æ¸¸æˆä¸»å¾ªçŽ¯æ‰§è¡Œçš„æ—¶é—´é—´éš”
+	var SP_DOWN_SPEED_QUICK = 30; //ä¸‹è½æœ€å¤§é€Ÿåº¦
+	var SP_MAX_LEN = 6;//æŽ§åˆ¶ä¸‹è½æ–¹å—æœ€å¤§æ•°é‡
+	var UI_TIP_LEN = 3; //æç¤ºä¸‹ä¸€ä¸ªçš„é•¿åº¦
 
 	var UI_GAME_W = 500;
 	var UI_GAME_H = 350;
@@ -44,114 +44,114 @@
 
  
 	var GENG = [
-	{num:7,text:"°¢ÐéÊÔÍ¼×èÖ¹ÄãÔÚÐéÄâÖÐÑ°ÕÒÕæÊµ"}//°ëºÚÆÁ
-	,{num:9,text:"±¿µ°¢á¶Ô·½¿éÊ©¼ÓÁËÄ§·¨ÖúÄãÍ¨¹Ø"}//±ä³¤Ìõ
-	,{num:59,text:"ÎÞµÐÌ¹¿Ë·¢ÉäÅÚµ¯Õ¨¿ª·½¿é"}//³¬´óBUG¿é
-	,{num:74,text:"ÇÐËÃpapaµÄ±¯ÉËÊ¹ÆÁÄ»¶¼°µµ­ÁË"}//ºÚÆÁ
-	,{num:213,text:"2BÖÇÕÏ·çÂþÑÓ½µµÍÁËÄÑ¶È"}//·½¿é±äÎª1¸ñ
-	,{num:233,text:"ÍÂ²ÛÈºÖÚÒªÇóÔö¼ÓÓÎÏ·¹ÛÉÍÐÔ"}//ÓÎÏ·ËÙ¶ÈÔö¼Ó
-	,{num:384,text:"ÍêÃÀÖ´ÊÂÇå³ýÔÓÂÒ·½¿é"}//Ïû³ýÍ¬Àà·½¿é
-	,{num:404,text:"ÍøÕ¾´íÎó´øÀ´ÁËÒ»¸öBUG"}//Ëæ»úBUG¿é
-	,{num:450,text:"µ¶¸çÒ»Éù·ÅËÁÕð×¡ÏÖ³¡"}//½ûÖ¹²Ù×÷
-	,{num:495,text:"¶þÃÃ¼ÓÈëÁËÒì±ä£¬ÖÆÔìÁË»ìÂÒ"}//²Ù×÷±ä»»
-	,{num:520,text:"ÎÕÊÖ°®¶¶ÏòÄãÊÕÈ¡520"}//¿Û·Ö520
-	,{num:614,text:"°Á½¿ÂÜÀòËÍÄãÒ»´Î³é½±»ú»á"}//Ôö¼Ó³é½±»ú»á
-	,{num:666,text:"¾õÀ÷ÈºÖÚ¸øÄãË«»÷666"}//¼Ó·Ö666
-	,{num:801,text:"¸¯»µÈºÖÚ¿ªÆôÁËÐÂÊÀ½çµÄ´óÃÅ"}//±ä¸üÎªÏÂÒ»½××´Ì¬
-	,{num:894,text:"ÃÔÂ·ÎÏÅ£ÔÙ´Î»Øµ½ÁËÆðµã"}//±ä¸üÎªÔ­µã×´Ì¬
-	,{num:993,text:"±¯ÉËÃæÕÖÄÐ±»±Æ±¬·¢È«Á¦"}//È«ÆÁÇå³ý
-	,{num:998,text:"¹ã¸æ´ÙÏúËÍÄãÒ»´Î³é½±»ú»á"}//Ôö¼Ó³é½±»ú»á
-	,{num:1024,text:"¸£ÀûÉçÇø·¢·Å¡®½µËÙ¡¯¸£Àû"}//ÓÎÏ·ËÙ¶È¼õÉÙ
-	,{num:1096,text:"Á¹¹¬Ñ§½ãÓëÄãÒ»ÆðÓîÖæÌ½ÏÕ"}//Á¢¼´³é½±
-	,{num:3000,text:"½ð·¢´óÐ¡½ãÖØ½ðÆ¸ÇëÄã×ö¹Ü¼Ò"}//¼Ó·Ö1000
+	{num:7,text:"é˜¿è™šè¯•å›¾é˜»æ­¢ä½ åœ¨è™šæ‹Ÿä¸­å¯»æ‰¾çœŸå®ž"}//åŠé»‘å±
+	,{num:9,text:"ç¬¨è›‹â‘¨å¯¹æ–¹å—æ–½åŠ äº†é­”æ³•åŠ©ä½ é€šå…³"}//å˜é•¿æ¡
+	,{num:59,text:"æ— æ•Œå¦å…‹å‘å°„ç‚®å¼¹ç‚¸å¼€æ–¹å—"}//è¶…å¤§BUGå—
+	,{num:74,text:"åˆ‡å—£papaçš„æ‚²ä¼¤ä½¿å±å¹•éƒ½æš—æ·¡äº†"}//é»‘å±
+	,{num:213,text:"2Bæ™ºéšœé£Žæ¼«å»¶é™ä½Žäº†éš¾åº¦"}//æ–¹å—å˜ä¸º1æ ¼
+	,{num:233,text:"åæ§½ç¾¤ä¼—è¦æ±‚å¢žåŠ æ¸¸æˆè§‚èµæ€§"}//æ¸¸æˆé€Ÿåº¦å¢žåŠ 
+	,{num:384,text:"å®Œç¾Žæ‰§äº‹æ¸…é™¤æ‚ä¹±æ–¹å—"}//æ¶ˆé™¤åŒç±»æ–¹å—
+	,{num:404,text:"ç½‘ç«™é”™è¯¯å¸¦æ¥äº†ä¸€ä¸ªBUG"}//éšæœºBUGå—
+	,{num:450,text:"åˆ€å“¥ä¸€å£°æ”¾è‚†éœ‡ä½çŽ°åœº"}//ç¦æ­¢æ“ä½œ
+	,{num:495,text:"äºŒå¦¹åŠ å…¥äº†å¼‚å˜ï¼Œåˆ¶é€ äº†æ··ä¹±"}//æ“ä½œå˜æ¢
+	,{num:520,text:"æ¡æ‰‹çˆ±æŠ–å‘ä½ æ”¶å–520"}//æ‰£åˆ†520
+	,{num:614,text:"å‚²å¨‡èèŽ‰é€ä½ ä¸€æ¬¡æŠ½å¥–æœºä¼š"}//å¢žåŠ æŠ½å¥–æœºä¼š
+	,{num:666,text:"è§‰åŽ‰ç¾¤ä¼—ç»™ä½ åŒå‡»666"}//åŠ åˆ†666
+	,{num:801,text:"è…åç¾¤ä¼—å¼€å¯äº†æ–°ä¸–ç•Œçš„å¤§é—¨"}//å˜æ›´ä¸ºä¸‹ä¸€é˜¶çŠ¶æ€
+	,{num:894,text:"è¿·è·¯èœ—ç‰›å†æ¬¡å›žåˆ°äº†èµ·ç‚¹"}//å˜æ›´ä¸ºåŽŸç‚¹çŠ¶æ€
+	,{num:993,text:"æ‚²ä¼¤é¢ç½©ç”·è¢«é€¼çˆ†å‘å…¨åŠ›"}//å…¨å±æ¸…é™¤
+	,{num:998,text:"å¹¿å‘Šä¿ƒé”€é€ä½ ä¸€æ¬¡æŠ½å¥–æœºä¼š"}//å¢žåŠ æŠ½å¥–æœºä¼š
+	,{num:1024,text:"ç¦åˆ©ç¤¾åŒºå‘æ”¾â€˜é™é€Ÿâ€™ç¦åˆ©"}//æ¸¸æˆé€Ÿåº¦å‡å°‘
+	,{num:1096,text:"å‡‰å®«å­¦å§ä¸Žä½ ä¸€èµ·å®‡å®™æŽ¢é™©"}//ç«‹å³æŠ½å¥–
+	,{num:3000,text:"é‡‘å‘å¤§å°å§é‡é‡‘è˜è¯·ä½ åšç®¡å®¶"}//åŠ åˆ†1000
 	];
 
 	var VAN = 1, SHILEI = 2;
 	var TXT_begin_1 = [
-		{text:"¼òµ¥ËµÒ»ÏÂ...",type:SHILEI}
-		,{text:"¼ýÍ·°´¼üÒÆ¶¯±ä»»·½¿é£¬PCÊ¹ÓÃwsad²Ù¿Ø",type:VAN}
-		,{text:"µã»÷ÉÏÃæµÄ×êÊ¯³é½±£¨ÏûºÄ100»ý·Ö£©",type:VAN}
-		,{text:"µ½´ïÖ¸¶¨·ÖÊý»á´¥·¢²»Í¬ÊÂ¼þºÍ½á¾Ö",type:SHILEI}
-		,{text:"×£ÄãÍæµÃÓä¿ì£¡",type:SHILEI}
+		{text:"ç®€å•è¯´ä¸€ä¸‹...",type:SHILEI}
+		,{text:"ç®­å¤´æŒ‰é”®ç§»åŠ¨å˜æ¢æ–¹å—ï¼ŒPCä½¿ç”¨wsadæ“æŽ§",type:VAN}
+		,{text:"ç‚¹å‡»ä¸Šé¢çš„é’»çŸ³æŠ½å¥–ï¼ˆæ¶ˆè€—100ç§¯åˆ†ï¼‰",type:VAN}
+		,{text:"åˆ°è¾¾æŒ‡å®šåˆ†æ•°ä¼šè§¦å‘ä¸åŒäº‹ä»¶å’Œç»“å±€",type:SHILEI}
+		,{text:"ç¥ä½ çŽ©å¾—æ„‰å¿«ï¼",type:SHILEI}
 		];
 
-	var TXT_normalEnd_1 = [{text:"ÓÎÏ·½áÊø£¡",type:VAN}
-						,{text:"ÎÒ¾õµÃÄãÓÐ½ø²½µÄ¿Õ¼ä",type:SHILEI}
-						,{text:"ÖØÖÃÓÎÏ·...",type:VAN}
+	var TXT_normalEnd_1 = [{text:"æ¸¸æˆç»“æŸï¼",type:VAN}
+						,{text:"æˆ‘è§‰å¾—ä½ æœ‰è¿›æ­¥çš„ç©ºé—´",type:SHILEI}
+						,{text:"é‡ç½®æ¸¸æˆ...",type:VAN}
 						];
 
 	var TXT_badEnd_1 = [{text:"....",type:VAN}
-				,{text:"¿È...",type:VAN}
-				,{text:"vanÉÙ£¬ÄãÔõÃ´ÁË£¿",type:SHILEI}
-				,{text:"Ê¬À×£¬ÄãÌýÎÒËµ...",type:VAN}
+				,{text:"å’³...",type:VAN}
+				,{text:"vanå°‘ï¼Œä½ æ€Žä¹ˆäº†ï¼Ÿ",type:SHILEI}
+				,{text:"å°¸é›·ï¼Œä½ å¬æˆ‘è¯´...",type:VAN}
 				,{text:"...",type:SHILEI}
-				,{text:"¿´À´ÕâÇé¿öÎÞ·¨ÔÙ´ôÕâ¶ùÁË",type:VAN}
-				,{text:"ÎÒ±ØÐëÒªÈ¥ÄÇ¸öµØ·½ÁË",type:VAN}
-				,{text:"È¥ÁËÄÇ¸öµØ·½¿ÉÄÜ...",type:VAN}
-				,{text:"¾ÍÔÙÒ²»Ø²»À´ÁË...",type:VAN}
-				,{text:"¿ÉÄÜÕâ¼þÓÐÐ©Í»È»...",type:VAN}
-				,{text:"×ßÖ®Ç°...Ê¬À×...",type:VAN}
+				,{text:"çœ‹æ¥è¿™æƒ…å†µæ— æ³•å†å‘†è¿™å„¿äº†",type:VAN}
+				,{text:"æˆ‘å¿…é¡»è¦åŽ»é‚£ä¸ªåœ°æ–¹äº†",type:VAN}
+				,{text:"åŽ»äº†é‚£ä¸ªåœ°æ–¹å¯èƒ½...",type:VAN}
+				,{text:"å°±å†ä¹Ÿå›žä¸æ¥äº†...",type:VAN}
+				,{text:"å¯èƒ½è¿™ä»¶æœ‰äº›çªç„¶...",type:VAN}
+				,{text:"èµ°ä¹‹å‰...å°¸é›·...",type:VAN}
 				,{text:"......",type:SHILEI}
-				,{text:"×î½ü¿´ÄãÈôÓÐËùË¼µÄÑù×Ó",type:SHILEI}
-				,{text:"ÄãÒ»Ö±¶¼ÔÚÏëÕâ¸öÊÂ¶Ô°É£¿",type:SHILEI}
-				,{text:"ÄãÊÇ¸öËµµ½×öµ½µÄÈË",type:SHILEI}
-				,{text:"ÏÖÔÚÎÒ·¢ÏÖÎÒÌÖÑáÕâÑùµÄÄã",type:SHILEI}
-				,{text:"ÄãÕâÑù×öÄãÕæµÄ¿ªÐÄÂð£¿",type:SHILEI}
-				,{text:"Ã÷Ã÷ºÃ²»ÈÝÒ×²ÅÓÐÁË...",type:SHILEI}
-				,{text:"ºÍÎÒÔÚÒ»ÆðÄÄµã²»ºÃÂð£¿",type:SHILEI}
-				,{text:"vanÉÙ£¬ÄãÊÇ¸öÎÞÇéµÄÈË£¡",type:SHILEI}
-				,{text:"Äã²»»á»ñµÃÐÒ¸£µÄ£¡",type:SHILEI}
+				,{text:"æœ€è¿‘çœ‹ä½ è‹¥æœ‰æ‰€æ€çš„æ ·å­",type:SHILEI}
+				,{text:"ä½ ä¸€ç›´éƒ½åœ¨æƒ³è¿™ä¸ªäº‹å¯¹å§ï¼Ÿ",type:SHILEI}
+				,{text:"ä½ æ˜¯ä¸ªè¯´åˆ°åšåˆ°çš„äºº",type:SHILEI}
+				,{text:"çŽ°åœ¨æˆ‘å‘çŽ°æˆ‘è®¨åŽŒè¿™æ ·çš„ä½ ",type:SHILEI}
+				,{text:"ä½ è¿™æ ·åšä½ çœŸçš„å¼€å¿ƒå—ï¼Ÿ",type:SHILEI}
+				,{text:"æ˜Žæ˜Žå¥½ä¸å®¹æ˜“æ‰æœ‰äº†...",type:SHILEI}
+				,{text:"å’Œæˆ‘åœ¨ä¸€èµ·å“ªç‚¹ä¸å¥½å—ï¼Ÿ",type:SHILEI}
+				,{text:"vanå°‘ï¼Œä½ æ˜¯ä¸ªæ— æƒ…çš„äººï¼",type:SHILEI}
+				,{text:"ä½ ä¸ä¼šèŽ·å¾—å¹¸ç¦çš„ï¼",type:SHILEI}
 				];
 	var TXT_badEnd_2 = [{text:".........",type:VAN}
-					,{text:"van...Äã...",type:SHILEI}
-					,{text:"ÄãµÄÉíÌå£¡ÒªÏûÊ§ÁË£¡",type:SHILEI}
-					,{text:"ÕâÊÇÔõÃ´ÁË£¡¿ì»Ø´ðÎÒ£¡",type:SHILEI}
-					,{text:"¶Ô²»Æð...",type:VAN}
-					,{text:"ËµÄãµÄÉíÌå°¡!!!",type:SHILEI}
-					,{text:"ÈçÄãËù¼û£¬ÎÒÒªÈ¥ÄÇ¶ùÁË",type:VAN}
-					,{text:"ÄÇ¶ùÊÇÄÄ¶ù°¡£¿ÉíÌå²»ÒªÏûÊ§°¡",type:SHILEI}
-					,{text:"ÎÒÓÐ»°¶ÔÄãËµ...",type:VAN}
-					,{text:"...ÎÒ...ÎÒ...¶ÔÄã...",type:VAN}
+					,{text:"van...ä½ ...",type:SHILEI}
+					,{text:"ä½ çš„èº«ä½“ï¼è¦æ¶ˆå¤±äº†ï¼",type:SHILEI}
+					,{text:"è¿™æ˜¯æ€Žä¹ˆäº†ï¼å¿«å›žç­”æˆ‘ï¼",type:SHILEI}
+					,{text:"å¯¹ä¸èµ·...",type:VAN}
+					,{text:"è¯´ä½ çš„èº«ä½“å•Š!!!",type:SHILEI}
+					,{text:"å¦‚ä½ æ‰€è§ï¼Œæˆ‘è¦åŽ»é‚£å„¿äº†",type:VAN}
+					,{text:"é‚£å„¿æ˜¯å“ªå„¿å•Šï¼Ÿèº«ä½“ä¸è¦æ¶ˆå¤±å•Š",type:SHILEI}
+					,{text:"æˆ‘æœ‰è¯å¯¹ä½ è¯´...",type:VAN}
+					,{text:"...æˆ‘...æˆ‘...å¯¹ä½ ...",type:VAN}
 					,{text:".......",type:VAN}
-					,{text:"ÄãÓÐÊ²Ã´»°ÏëËµ°¡£¿Ëµ°¡£¡",type:SHILEI}
-					,{text:"...ÎÒ......",type:VAN}
+					,{text:"ä½ æœ‰ä»€ä¹ˆè¯æƒ³è¯´å•Šï¼Ÿè¯´å•Šï¼",type:SHILEI}
+					,{text:"...æˆ‘......",type:VAN}
 					];
-	var TXT_badEnd_3 = [{text:"vanÉÙ!!!",type:SHILEI}
-					,{text:"Äã±ð×ß£¡£¡",type:SHILEI}
-					,{text:"vanÉÙ£¡ÄãÄÜÌý¼ûÎÒËµ»°Âð£¿",type:SHILEI}
-					,{text:"Äã°Ñ»°ËµÍê°¡£¡£¡",type:SHILEI}
-					,{text:"ÄãËµ»°°¡£¡£¡ÄãÊÇ×°Ìý²»µ½Âð£¿",type:SHILEI}
-					,{text:"ÄãÕâ¸ö»ìµ°£¡£¡",type:SHILEI}
-					,{text:"ÎªÊ²Ã´²»Ôç¸æËßÎÒ£¡",type:SHILEI}
-					,{text:"ÎÒÓÐºÃ¶à»°À´²»¼°¸øÄãËµ",type:SHILEI}
+	var TXT_badEnd_3 = [{text:"vanå°‘!!!",type:SHILEI}
+					,{text:"ä½ åˆ«èµ°ï¼ï¼",type:SHILEI}
+					,{text:"vanå°‘ï¼ä½ èƒ½å¬è§æˆ‘è¯´è¯å—ï¼Ÿ",type:SHILEI}
+					,{text:"ä½ æŠŠè¯è¯´å®Œå•Šï¼ï¼",type:SHILEI}
+					,{text:"ä½ è¯´è¯å•Šï¼ï¼ä½ æ˜¯è£…å¬ä¸åˆ°å—ï¼Ÿ",type:SHILEI}
+					,{text:"ä½ è¿™ä¸ªæ··è›‹ï¼ï¼",type:SHILEI}
+					,{text:"ä¸ºä»€ä¹ˆä¸æ—©å‘Šè¯‰æˆ‘ï¼",type:SHILEI}
+					,{text:"æˆ‘æœ‰å¥½å¤šè¯æ¥ä¸åŠç»™ä½ è¯´",type:SHILEI}
 					,{text:"van...",type:SHILEI}
 					,{text:"van......",type:SHILEI}
-					,{text:"ÎÒÀ´ÕÒÄãÁË...",type:SHILEI}
+					,{text:"æˆ‘æ¥æ‰¾ä½ äº†...",type:SHILEI}
 					];
 
 	var TXT_goodEnd_1 = [{text:"......",type:VAN}
 				,{text:"......",type:SHILEI}
-				,{text:"ÆäÊµ...",type:SHILEI}
-				,{text:"ÖÕÓÚµ½ÁËÕâÖÖÊ±¿Ì..",type:VAN}
-				,{text:"Ê¬À×£¡ÄãÌýÎÒËµ...",type:VAN}
+				,{text:"å…¶å®ž...",type:SHILEI}
+				,{text:"ç»ˆäºŽåˆ°äº†è¿™ç§æ—¶åˆ»..",type:VAN}
+				,{text:"å°¸é›·ï¼ä½ å¬æˆ‘è¯´...",type:VAN}
 				,{text:"...",type:SHILEI}
-				,{text:"ÎÒÔÙÒ²µÈ²»ÏÂÈ¥ÁË...",type:VAN}
-				,{text:"µÚÒ»´Î¼ûµ½ÄãÊ±£¬",type:VAN}
-				,{text:"´¿ÕæÎÞÐ°£¬¿ìÀÖ»îÆÃ...",type:VAN}
-				,{text:"ÏÖÔÚÄãÒÑ¾­±äµÃÈç´Ëã¾ã²",type:VAN}
-				,{text:"Õâ¸öÊÀ½çÌ«Ææ¹Ö£¡",type:VAN}
-				,{text:"Ã»ÓÐ±£»¤ÈÏÕæ¶Ô´ýÉú»îµÄÈË",type:VAN}
-				,{text:"ÏÖÔÚÄã²»ÓÃÔÙµ£ÐÄÊ²Ã´ÁË",type:VAN}
-				,{text:"¼´Ê¹¶Ô¿¹ÊÀ½ç",type:VAN}
-				,{text:"ÎÒÒ²ÒªÄãÐÒ¸£!",type:VAN}
-				,{text:"Ê¬À×,ÎÒÃÇÔÚÒ»Æð°É!",type:VAN}
+				,{text:"æˆ‘å†ä¹Ÿç­‰ä¸ä¸‹åŽ»äº†...",type:VAN}
+				,{text:"ç¬¬ä¸€æ¬¡è§åˆ°ä½ æ—¶ï¼Œ",type:VAN}
+				,{text:"çº¯çœŸæ— é‚ªï¼Œå¿«ä¹æ´»æ³¼...",type:VAN}
+				,{text:"çŽ°åœ¨ä½ å·²ç»å˜å¾—å¦‚æ­¤æ†”æ‚´",type:VAN}
+				,{text:"è¿™ä¸ªä¸–ç•Œå¤ªå¥‡æ€ªï¼",type:VAN}
+				,{text:"æ²¡æœ‰ä¿æŠ¤è®¤çœŸå¯¹å¾…ç”Ÿæ´»çš„äºº",type:VAN}
+				,{text:"çŽ°åœ¨ä½ ä¸ç”¨å†æ‹…å¿ƒä»€ä¹ˆäº†",type:VAN}
+				,{text:"å³ä½¿å¯¹æŠ—ä¸–ç•Œ",type:VAN}
+				,{text:"æˆ‘ä¹Ÿè¦ä½ å¹¸ç¦!",type:VAN}
+				,{text:"å°¸é›·,æˆ‘ä»¬åœ¨ä¸€èµ·å§!",type:VAN}
 				,{text:"...",type:SHILEI}
-				,{text:"vanÉÙ£¬ÎÒ´ðÓ¦ÄãµÄÇëÇó£¡",type:SHILEI}
-				,{text:"ËäÈ»ÎÒÃ»Ê²Ã´´óµÄÄÜÁ¦",type:SHILEI}
-				,{text:"ÌÈÈôÄãÓöµ½ÁËÀ§ÄÑ",type:SHILEI}
-				,{text:"ÎÒ½«È«ÐÄÈ«ÒâÖ§³ÖÄã",type:SHILEI}
-				,{text:"Ê¬À×£¡",type:VAN}
-				,{text:"van£¡",type:SHILEI}
+				,{text:"vanå°‘ï¼Œæˆ‘ç­”åº”ä½ çš„è¯·æ±‚ï¼",type:SHILEI}
+				,{text:"è™½ç„¶æˆ‘æ²¡ä»€ä¹ˆå¤§çš„èƒ½åŠ›",type:SHILEI}
+				,{text:"å€˜è‹¥ä½ é‡åˆ°äº†å›°éš¾",type:SHILEI}
+				,{text:"æˆ‘å°†å…¨å¿ƒå…¨æ„æ”¯æŒä½ ",type:SHILEI}
+				,{text:"å°¸é›·ï¼",type:VAN}
+				,{text:"vanï¼",type:SHILEI}
 				];
 
 }

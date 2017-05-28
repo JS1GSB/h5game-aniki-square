@@ -72,6 +72,7 @@
 		t.bkImg["mogeko"] = new LBitmapData(_res["bk_img_mogeko"]);
 		t.bkImg["van"] = new LBitmapData(_res["p_van"]);
 		t.bkImg["shilei"] = new LBitmapData(_res["p_shilei"]);
+		t.bkImg["shilei_sad"] = new LBitmapData(_res["p_shilei_sad"]);
 		t.bkImg["ef_yushenmu"] = new LBitmapData(_res["ef_yushenmu"]);
 		t.bkImg["ef_boom"] = new LBitmapData(_res["ef_boom"]);
 		
