@@ -152,7 +152,7 @@ Game._create = function(_cav){
 	
 	Game.init();
 	LGlobal.stage.addEventListener(LKeyboardEvent.KEY_PRESS,OpreatCav._keyF);
-	TIMER(50,20000,t._timer); //FIXME
+	TIMER(50,MAX_VALUE,t._timer); //FIXME
 	
 	}
 Game.init = function(cav){
@@ -194,7 +194,7 @@ Game.over = function(){
 	var end = STAGE_INFO[ScoreManage._stage].end;
 	switch(end){
 		case 0:
-		//Game.normolEnd();
+		Game.normolEnd();
 		break;
 		case 1:
 		Game.badEnd();
@@ -257,7 +257,7 @@ function OnLoadGame(e){
 	var url = "./s_bgm_up.";
 	g_soundRes.load(url+"mp3,"+url+"ogg,"+url+"wav");
 	g_soundRes.addEventListener(LEvent.COMPLETE, function(){
-		//g_soundRes.play();
+		g_soundRes.play();
 		trace("g_soundRes load over");
 		});
 	LLoadManage.load(

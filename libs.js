@@ -868,7 +868,7 @@ RandomCav.raffleSimulation = function(){//
 			t.btnR = new XButton(90,230," → ",t._cav,function(){
 				(OpreatCav._f[1])();
 			});
-			t.btnUp = new XButton(355,230," ↑ ",t._cav,function(){
+			t.btnUp = new XButton(345,230," ↑ ",t._cav,function(){
 				(OpreatCav._f[2])();
 			});
 			t.btnDown = new XButton(430,230," ↓ ",t._cav,function(){
@@ -984,7 +984,7 @@ RandomCav.raffleSimulation = function(){//
 		for (var x = 0; x < SP_W_N; x++) {
 			for(var y = 0; y < SP_H_N; y++){
 				if(MainCav.getIcon(x,y) == SP_ID_BAD){
-					MainCav.changeIconNum(x,y,0);
+					MainCav.changeIconNum(x,y,SP_ID_YSM);
 				}
 			}
 		}
@@ -1222,7 +1222,7 @@ ScoreManage._create = function(cav){
 	
 	t._score = 0;
 	t._scoreShow = 0;
-	t._lineAdd = 1;
+	t._lineAdd = 0;
 	t._baseScore = STAGE_INFO[0].stageScore;
 	
 	t._stage = 0;
@@ -1238,7 +1238,7 @@ ScoreManage.init = function(){
 	
 	t._score = 0;
 	t._scoreShow = 0;
-	t._lineAdd = 1;
+	t._lineAdd = 0;
 	t._baseScore = STAGE_INFO[0].addScore;
 	
 	t._stage = 0;
@@ -1276,10 +1276,10 @@ ScoreManage._computeStageInfo = function() {
 
 	var txtData =[];
 	if(t._baseScore > tempAdd){
+		FilterSame.exModel();
 		txtData.push({text:"分数速率增加！",type:VAN});
 	}
 	if( ControlCav.getBaseSpeed() > tempSpeed){
-		FilterSame.exModel();
 		txtData.push({text:"速度增加！游得很快！",type:VAN});
 	}
 	if(RandomCav.getRandomMax() > tempRandom){
@@ -1359,6 +1359,10 @@ ScoreManage.compute = function() {
 	}
 	for (var x = 0; x < SP_W_N; x++) {
 			for(var y=0;y < SP_H_N; y++){
+				if(DATA[x][y]==SP_ID_YSM){
+					temp[x][y]=1;
+					score_time += 1;
+					}
 				if(DATA[x][y]!=0&&DATA[x][y]!=SP_ID_BAD){
 					if(y<SP_H_N-2){
 						if(DATA[x][y]==DATA[x][y+1]&&DATA[x][y]==DATA[x][y+2]){
@@ -1414,7 +1418,7 @@ ScoreManage.compute = function() {
 		ScoreManage._changeScore(num,UI_SP_X+showX*SP_W,(SP_H_N-showY-1)*SP_H);
 	}
 	else{
-		t._lineAdd = 1;
+		t._lineAdd = 0;
 		}
 	if(score_time > 10)
 	{
@@ -1521,7 +1525,7 @@ FilterSame._timer = function(){
 		for (var i = 0; i < SP_W_N; i++) {
 			for (var j = 0; j < SP_H_N; j++) {
 				if(DATA[i][j]==t._cur){
-					MainCav.changeIconNum(i,j,0);
+					MainCav.changeIconNum(i,j,SP_ID_YSM);
 				}
 			}
 		}

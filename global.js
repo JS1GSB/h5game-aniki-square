@@ -42,7 +42,7 @@
 	,{stage:6,stageScore:6000,speed:11,addScore:20,sp:7,end:2}
 	];
 
- 
+ //not used
 	var GENG = [
 	{num:7,text:"阿虚试图阻止你在虚拟中寻找真实"}//半黑屏
 	,{num:9,text:"笨蛋⑨对方块施加了魔法助你通关"}//变长条
